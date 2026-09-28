@@ -18,7 +18,7 @@ fork and point `upstream` at this repository:
 ```bash
 git clone <your-fork-url> house-special
 cd house-special
-git remote add upstream <upstream-url>
+git remote add upstream https://github.com/azimmer-tbt/house-special.git
 git fetch upstream
 ```
 

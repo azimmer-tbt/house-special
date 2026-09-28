@@ -39,7 +39,7 @@ It gives you:
 ## Quick start
 
 ```bash
-git clone <this repo> && cd house-special
+git clone https://github.com/azimmer-tbt/house-special.git && cd house-special
 # Needs AutoPkg; see "Getting ready" below for the full list.
 
 bin/recipe-linter.sh --repo customer/acme/output --pair-check          # lint Acme's recipes
