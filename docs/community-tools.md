@@ -7,9 +7,7 @@ The same few requests arrive at every Mac admin sooner or later:
 - *"Make Chrome the default browser."*
 - *"…and make it stay that way."*
 
-Each is hell to script by hand. Each has a small, free, community-trusted tool that does
-it properly. If you didn't know they existed, now you do. The kit ships a recipe for every
-tool below, so you can package them like anything else.
+Desktop picture, Dock items, and default browser can be maddening to script by hand. Each has a small, free, community-trusted tool that does it properly. If you didn't know they existed, now you do. The kit ships a recipe for every tool below, so you can package them like anything else.
 
 | Tool | Solves | By | Recipe |
 |---|---|---|---|
