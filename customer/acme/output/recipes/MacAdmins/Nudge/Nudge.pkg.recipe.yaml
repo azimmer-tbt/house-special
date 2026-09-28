@@ -1,0 +1,16 @@
+Comment: Pattern 2a — GitHub release, signed vendor pkg copied as-is. PkgCopier keeps the vendor's package and signature; no org prefix.
+Description: Copies the Nudge vendor package as-is (the vendor's signed artifact, not an in-house build).
+Identifier: com.acmefruit.autopkg.pkg.Nudge
+ParentRecipe: com.acmefruit.autopkg.download.Nudge
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Nudge
+
+Process:
+  # A sealed vendor package: never opened, never rebuilt. Anything the org adds
+  # (configuration, a login script) ships as its own slice.
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%pathname%"
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"

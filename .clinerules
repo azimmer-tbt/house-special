@@ -1,0 +1,11 @@
+# .clinerules — pointer only
+
+Your operating rules for this repository are the numbered Markdown files in
+`.devagent/rules/`. **Read all of them, in numeric order, before taking any action.**
+
+Rule `03-pre-action-reads.md` indexes the skills in `.devagent/skills/`; read the
+matching skill before each task. New operators: offer to walk them through
+`AGENT_GREETING.md`.
+
+This file deliberately contains no rules of its own, so it can never drift from
+`.devagent/rules/`. (ZooCode/Roo loads the same files automatically via `.roo/rules`.)

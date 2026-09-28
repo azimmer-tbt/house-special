@@ -1,0 +1,156 @@
+{
+  "findings": [],
+  "pairs": {
+    "QuarantineHelper": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 48,
+          "processor": "URLDownloader",
+          "recipe": "QuarantineHelper.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Users",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared/QuarantineHelper",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared/QuarantineHelper/helper.cfg",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared/QuarantineHelper/banner.png",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "QuarantineHelper.download.recipe.yaml": "Pattern 6b \u2014 Rebuilt package \u2014 payload extracted from an existing installer. Source files not available. Uses URLDownloader + Unarchiver for universal payload and scripts archive handling.",
+        "QuarantineHelper.pkg.recipe.yaml": "Pattern 6b \u2014 rebuilt package. Payload extracted from QuarantineHelper-legacy.pkg, source files not available."
+      },
+      "extras": [
+        "Users/Shared/QuarantineHelper/banner.png",
+        "Users/Shared/QuarantineHelper/helper.cfg"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.QuarantineHelper",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "QuarantineHelper.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.QuarantineHelper",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.QuarantineHelper",
+          "file": "QuarantineHelper.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 54,
+          "processor": "PkgCreator",
+          "recipe": "QuarantineHelper.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [
+        "Users/Shared/QuarantineHelper",
+        "Users/Shared/QuarantineHelper/banner.png",
+        "Users/Shared/QuarantineHelper/helper.cfg"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 54,
+          "processor": "PkgCreator",
+          "recipe": "QuarantineHelper.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_QuarantineHelper"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Users",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "directory": "%RECIPE_CACHE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 54,
+          "processor": "PkgCreator",
+          "recipe": "QuarantineHelper.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": null,
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 48,
+          "processor": "URLDownloader",
+          "recipe": "QuarantineHelper.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/AcmeFruitCo/QuarantineHelper/payload.zip",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "QuarantineHelper.pkg.recipe.yaml"
+        },
+        "pinned": "1.0.0",
+        "value": "input"
+      }
+    }
+  }
+}

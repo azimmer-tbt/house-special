@@ -1,0 +1,9 @@
+=== inspect-app.sh ===
+  Name:         (not set)
+  Display name: Moonlight
+  Identifier:   com.moonlight-stream.Moonlight
+  Version:      6.1.0
+  Build:        6.1.0
+  Minimum OS:   11.0.0
+  Architectures: x86_64,arm64
+  Code signed:  true

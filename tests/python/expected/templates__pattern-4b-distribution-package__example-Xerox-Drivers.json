@@ -1,0 +1,87 @@
+{
+  "findings": [],
+  "pairs": {
+    "Xerox-Drivers": {
+      "artifact": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 15,
+          "processor": "Copier",
+          "recipe": "Xerox-Drivers.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "pkg"
+      },
+      "chown": [],
+      "claimed": {
+        "Xerox-Drivers.download.recipe.yaml": "Pattern 4b \u2014 Vendor-drop recipe \u2014 no automatic download; version pinned in Input.",
+        "Xerox-Drivers.pkg.recipe.yaml": "Pattern 4b \u2014 vendor-drop distribution pkg, copied as-is with Copier (pkg recipe)."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Xerox-Drivers",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Xerox-Drivers.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Xerox-Drivers",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Xerox-Drivers",
+          "file": "Xerox-Drivers.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "argument": "destination_path",
+          "line": 14,
+          "processor": "Copier",
+          "recipe": "Xerox-Drivers.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Copier"
+      },
+      "payload_complete": true,
+      "payload_paths": [],
+      "pkgname": null,
+      "pkgroot_parents": [],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "chain_listed": true,
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "expected_authority_names",
+          "line": 22,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Xerox-Drivers.download.recipe.yaml",
+          "step": 2
+        },
+        "value": "authority_names"
+      },
+      "source": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 15,
+          "processor": "Copier",
+          "recipe": "Xerox-Drivers.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "Xerox-Drivers.download.recipe.yaml"
+        },
+        "pinned": "5.16.0",
+        "value": "input"
+      }
+    }
+  }
+}

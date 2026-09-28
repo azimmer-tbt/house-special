@@ -1,0 +1,63 @@
+Comment: Pattern 2d — GitHub source ZIP, reassembled. PkgCreator ships the kit plus a delivery script; postinstall builds the tarball and puts it on every user's Desktop.
+Description: Packages the Fruta new-hire developer starter kit with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Fruta-Starter-Kit
+ParentRecipe: com.acmefruit.autopkg.download.Fruta-Starter-Kit
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruta-Starter-Kit
+  PKG_ID: com.acmefruit.pkg.Fruta-Starter-Kit
+
+Process:
+  # 1. Org-authored payload: the delivery script and the LaunchAgent that runs
+  #    it for accounts created after install. Copied first because a directory
+  #    Copier with overwrite replaces its destination.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_DIR%/payload"
+      destination_path: "%RECIPE_CACHE_DIR%/pkgroot"
+      overwrite: true
+
+  # 2. The sample project source, staged under the kit directory. The postinstall
+  #    turns it into Fruta-StarterKit.tar.gz (no core AutoPkg processor creates
+  #    archives, and building it at install time keeps the payload inspectable).
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/unpack/FrutaBuildingAFeatureRichAppWithSwiftUI-main"
+      destination_path: "%RECIPE_CACHE_DIR%/pkgroot/Library/Application Support/AcmeFruit/StarterKit/Fruta"
+      overwrite: true
+
+  # 3. Build. The payload is rooted at /, so the package must record an owner and
+  #    mode for every parent folder of what it installs (./Library, …). AutoPkg
+  #    builds with `pkgbuild --ownership preserve`, and the staged folders belong
+  #    to the account running AutoPkg — so by default the package would claim
+  #    /Library is owned by that account. The chown list is AutoPkg's root-run
+  #    "preflight" before pkgbuild: here it DECLARES THE STOCK macOS VALUES for the
+  #    shared parents (it changes nothing on a Mac that has them), then sets our
+  #    own paths. Owner only on parents — a mode would be applied to every
+  #    descendant (methodology lesson 17). Why, and the alternatives:
+  #    docs/package-ownership.md
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+        scripts: "%RECIPE_DIR%/scripts"
+        chown:
+          - path: Library
+            user: root
+            group: wheel
+          # Stock macOS owner: /Library/Application Support is root:admin.
+          - path: Library/Application Support
+            user: root
+            group: admin
+          - path: Library/Application Support/AcmeFruit
+            user: root
+            group: wheel
+          - path: Library/LaunchAgents/com.acmefruit.starter-kit.plist
+            user: root
+            group: wheel
+            mode: "0644"

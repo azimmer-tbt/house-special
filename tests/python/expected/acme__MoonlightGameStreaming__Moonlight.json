@@ -1,0 +1,115 @@
+{
+  "findings": [],
+  "pairs": {
+    "Moonlight": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 18,
+          "processor": "URLDownloader",
+          "recipe": "Moonlight.download.recipe.yaml",
+          "step": 1
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Moonlight.download.recipe.yaml": "Pattern 2b \u2014 GitHub release DMG. GitHubReleasesInfoProvider + URLDownloader; app verified inside the mounted DMG.",
+        "Moonlight.pkg.recipe.yaml": "Pattern 2b \u2014 GitHub release DMG. Copier stages the app; PkgCreator builds the Acme_ package."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Moonlight",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Moonlight.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Moonlight",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Moonlight",
+          "file": "Moonlight.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Moonlight.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Applications/Moonlight.app"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Moonlight.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "Acme_Moonlight"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "requirement",
+          "line": 25,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Moonlight.download.recipe.yaml",
+          "step": 3
+        },
+        "pins_team_id": true,
+        "value": "requirement"
+      },
+      "source": {
+        "evidence": {
+          "argument": "github_repo",
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Moonlight.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "github_release"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Moonlight.download.recipe.yaml",
+          "step": 0
+        },
+        "processor": "GitHubReleasesInfoProvider",
+        "value": "processor"
+      }
+    }
+  }
+}

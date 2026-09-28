@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6d — Rebuilt, Payloadless (Script-Only)
+#
+# Defined in reference/recipe-standards.md §6.2.6 (Pattern 6 variants).
+# Pattern 6d is a variant of Pattern 6 for script-only packages with no payload
+# files — typically uninstallers, launchagent deployments, or packages whose
+# entire function is delivered through preinstall/postinstall scripts.
+#
+# Use when the built package contains installer scripts but NO payload files
+# (empty pkgroot). The "payload" is the script execution itself.
+#
+# Recipe chain: URLDownloader + Unarchiver (scripts only) -> PkgCreator
+# with scripts, no pkgroot.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6d rebuilt package — script-only, no payload.
+Description: Downloads and unpacks installer scripts for REPLACE_APPNAME.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Version: add the same pinned version Input here as in the pkg recipe
+  # (for example version: "1.2.3"). Lint rule VER-001 looks for it in the
+  # download recipe. Pin it in Input, not in .overrides: AutoPkg never reads
+  # .overrides.
+
+  # A rebuilt package carries no signature — the original's was discarded when
+  # it was dismantled. This is not an omission to be silently tolerated; declare
+  # it, and say what the trust boundary actually is.
+  # Confirm the original's status first (never `codesign` on a .pkg):
+  #   pkgutil --check-signature <original>.pkg
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  # The scripts archive is stored in the vendor cache under the vendor directory.
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below the repo
+  # root. The segment after ../../../ depends on the target repo's layout.
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../REPLACE_VENDORCACHE"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/scripts.zip"
+  filename: "REPLACE_APPNAME-scripts.zip"
+
+Process:
+  # Download the scripts archive from the vendor cache. There is no payload
+  # archive — the entire package is defined by the installer scripts alone.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # Extract scripts into RECIPE_CACHE_DIR/scripts so PkgCreator can find them.
+  # purge_destination ensures stale scripts from a previous extraction are not
+  # carried forward into the build.
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase
+
+# NO CodeSignatureVerifier here. There is nothing to verify: the artifact is
+# assembled locally from a scripts archive. Declaring NO_CODE_SIGNATURE_REQUIRED
+# above with a reason is the correct handling — silently omitting the verifier
+# is not, because the next reader cannot tell an unsigned artifact from a
+# forgotten step.

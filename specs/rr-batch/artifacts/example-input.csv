@@ -1,0 +1,21 @@
+# Example input CSV for rr-batch.sh,,,
+"# Format: ""Status""",Vendor,AppName,URL
+# Status values: TEST (process if no output dir),,,
+#   SKIP (skip known failures),,,
+ # DONE (skip),,,
+ # blank (always process),,,
+# URLs can be HTTP(S) URLs or local file paths (absolute or relative).,,,
+,,,
+TEST,microsoft,Microsoft Teams,https://office.com/download/teams.dmg
+TEST,microsoft,Microsoft Edge,https://office.com/download/edge.dmg
+TEST,microsoft,Microsoft Visual Studio Code,https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal-dmg
+TEST,apple,Numbers,https://apps.apple.com/app/numbers/id409203825
+TEST,apple,Pages,https://apps.apple.com/app/pages/id409201541
+TEST,slack,Slack,https://slack.com/downloads/mac
+TEST,zoom,Zoom,https://zoom.us/client/latest/Zoom.pkg
+TEST,google,Google Chrome,https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg
+TEST,google,Google Drive,https://dl.google.com/drive-file-stream/GoogleDrive.dmg
+TEST,firefox,Firefox,https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US
+TEST,spotify,Spotify,https://download.scdn.co/Spotify.dmg
+TEST,adobe,Adobe Acrobat Reader,/Users/Shared/AdobeReader.dmg
+TEST,inkscape,Inkscape,https://inkscape.org/gallery/item/44616/Inkscape-1.3.2.dmg

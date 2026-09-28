@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6d — Rebuilt, Payloadless (Script-Only)
+#
+# Script-only package: downloads and unpacks installer scripts only — no
+# payload files. The postinstall script removes the UninstallAgent binary
+# from /private/tmp/ and related receipt artifacts.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6d rebuilt package — script-only, no payload.
+Description: Downloads and unpacks installer scripts for UninstallAgent.
+Identifier: com.acmefruit.autopkg.download.UninstallAgent
+MinimumVersion: "2.3"
+
+Input:
+  NAME: UninstallAgent
+  # Pinned: nothing in the source reports a version. Bump it with each new drop.
+  version: "15.5"
+
+  # Rebuilt from an unsigned in-house package: script only, nothing signed to verify.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/UninstallAgent/scripts.zip"
+  filename: "UninstallAgent-scripts.zip"
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase

@@ -1,0 +1,10 @@
+=== inspect-archive.sh ===
+  File:         /path/to/vendor-share/Corkscrews/Fruit-Screensaver/Fruit.saver.tar.gz
+  Size:         108302 bytes (0 MB)
+  Type:         tar.gz
+  Entries:      23
+
+=== Top-level contents ===
+  Fruit.saver
+
+  Run with --output json for full file listing.

@@ -1,0 +1,32 @@
+Comment: Pattern 2a — GitHub release, signed vendor pkg copied as-is. GitHubReleasesInfoProvider + URLDownloader; the pkg's signature is verified by certificate chain.
+Description: Downloads the latest Default-Browser installer package (sets the default web browser) from GitHub releases.
+Identifier: com.acmefruit.autopkg.download.Default-Browser
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Default-Browser
+  GITHUB_REPO: macadmins/default-browser
+  ASSET_REGEX: "^default-browser\\.pkg$"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: "%ASSET_REGEX%"
+      include_prereleases: false
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  # A flat .pkg is verified with pkgutil's certificate chain, copied verbatim from
+  # `pkgutil --check-signature` (methodology lessons 5 and 6).
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Mac Admins Open Source (T4SK8ZXCXG)"
+        - Developer ID Certification Authority
+        - Apple Root CA

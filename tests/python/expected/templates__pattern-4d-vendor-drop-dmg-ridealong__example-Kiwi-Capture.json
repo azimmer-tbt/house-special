@@ -1,0 +1,143 @@
+{
+  "findings": [],
+  "pairs": {
+    "Kiwi-Capture": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 37,
+          "processor": "URLDownloader",
+          "recipe": "Kiwi-Capture.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared/KiwiSoft/Kiwi-Capture",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Users/Shared/KiwiSoft/Kiwi-Capture/LicenseKey",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Kiwi-Capture.download.recipe.yaml": "Pattern 4d \u2014 Vendor-drop recipe (DMG) \u2014 URLDownloader stages DMG from vendor_cache, Copier mounts DMG natively for app extraction. Pattern Kiwi Capture*.app handles any version-year bundle name. Stages org scripts and license key alongside.",
+        "Kiwi-Capture.pkg.recipe.yaml": "Pattern 4d \u2014 vendor-drop DMG; PkgCreator adds the postinstall and license file."
+      },
+      "extras": [
+        "Users/Shared/KiwiSoft/Kiwi-Capture/LicenseKey"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Kiwi-Capture",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Kiwi-Capture.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Kiwi-Capture",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Kiwi-Capture",
+          "file": "Kiwi-Capture.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 24,
+          "processor": "PkgCreator",
+          "recipe": "Kiwi-Capture.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [
+        "Applications/Kiwi Capture.app",
+        "Users/Shared/KiwiSoft/Kiwi-Capture",
+        "Users/Shared/KiwiSoft/Kiwi-Capture/LicenseKey"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 24,
+          "processor": "PkgCreator",
+          "recipe": "Kiwi-Capture.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_Kiwi-Capture"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "directory": "%RECIPE_CACHE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 24,
+          "processor": "PkgCreator",
+          "recipe": "Kiwi-Capture.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": null,
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "requirement",
+          "line": 67,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Kiwi-Capture.download.recipe.yaml",
+          "step": 4
+        },
+        "pins_team_id": true,
+        "value": "requirement"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 37,
+          "processor": "URLDownloader",
+          "recipe": "Kiwi-Capture.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/KiwiSoft/Kiwi-Capture/Kiwi-Capture.dmg",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 77,
+          "processor": "Versioner",
+          "recipe": "Kiwi-Capture.download.recipe.yaml",
+          "step": 5
+        },
+        "processor": "Versioner",
+        "value": "processor"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+# Developer Team ID — verified before every build
+teamid=UBF8T346G9
+
+# Optional version pin for vendor-drop recipes
+version=1.2.3
+
+# App bundle name when it differs from NAME
+appname=Microsoft Edge

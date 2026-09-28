@@ -1,0 +1,34 @@
+# Vendor Drop Registry — Acme Fruit Co.
+#
+# Maps each Vendor/App directory under the vendor cache to the canonical filename
+# its recipe expects. bin/normalize-vendor-cache.sh reads this from the recipe repo
+# root (--repo customer/acme/output) and renames whatever was dropped to that name.
+# Only files of the canonical name's type (extension) are renamed; stale extras are
+# moved aside to <vendor-cache>/relocated/<Vendor>/<App>/, never deleted. protected_files are
+# never renamed or moved. --dry-run shows what would change.
+# Keys must be Vendor/App; values plain file names.
+# Schema and rationale: specs/vendor-cache/02-registry-config.md.
+#
+# Canonical names use only [A-Za-z0-9._-] — no spaces, no @, no version numbers.
+
+ignored_subdirs:
+  - "scripts"
+  - "payload"
+
+protected_files:
+  - "scripts.zip"
+  - "payload.zip"
+
+canonical_filenames:
+  # ── Pattern 4b — distribution vendor pkg, copied as-is ─────────────────────
+  HP/HP-Printer-Drivers: "HP-Printer-Drivers.pkg"
+  # ── Pattern 4c — vendor DMG, app only ─────────────────────────────────────
+  OrchardLabs/Orchard-Analytics: "Orchard-Analytics.dmg"
+  # ── Pattern 6c — license slice for the app above ──────────────────────────
+  OrchardLabs/Orchard-Analytics-License: "payload.zip"
+  # ── Pattern 6 — rebuilt in-house packages ─────────────────────────────────
+  AcmeFruitCo/AcmeSupport: "payload.zip"
+  AcmeFruitCo/Acme-Wallpaper: "payload.zip"
+  AcmeFruitCo/Acme-UninstallAgent: "scripts.zip"
+  # ── Pattern 7 — faux vendor DMG ───────────────────────────────────────────
+  PomeloSoftware/Pomelo-Studio: "Pomelo-Studio.dmg"

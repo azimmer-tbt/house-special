@@ -1,0 +1,8 @@
+# This file has deliberate syntax errors for parsing validation testing
+auto_rebuild: true
+: emptykey
+promote_to
+malformed_line_with_no_separator
+auto_rebuild: false
+# Smart quotes below — uncomment to test:
+# regions: [“global”]

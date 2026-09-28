@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 7 — pkg recipe (Faux Vendor DMG source)
+#
+# Builds a flat package from the .app extracted by the parent download recipe.
+# Uses Versioner (to read the .app's bundle version) + PkgCreator (to build
+# the package with a chown block).
+#
+# DO NOT reference %pathname% in this recipe. URLDownloader sets %pathname%;
+# Copier does NOT. A Pattern 7 parent uses URLDownloader → Copier (mount),
+# so while URLDownloader *does* set %pathname%, the .app path is constructed
+# from %RECIPE_CACHE_DIR%/%NAME%/Applications/... which IS shared across the
+# parent→child boundary.
+# See reference/methodology.md items #3 and #4.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 7 faux vendor DMG. PkgCreator with DMG-extracted .app.
+Description: Packages Pomelo Studio with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Pomelo-Studio
+ParentRecipe: com.acmefruit.autopkg.download.Pomelo-Studio
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Pomelo-Studio
+  PKG_ID: com.acmefruit.pkg.Pomelo-Studio
+
+Process:
+  # Read version from the .app bundle
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Pomelo Studio 4.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  # Build the org-prefixed package
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"

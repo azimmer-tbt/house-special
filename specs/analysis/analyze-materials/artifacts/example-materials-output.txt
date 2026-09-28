@@ -1,0 +1,48 @@
+=== Scanning /path/to/vendor-share ===
+  Depth:        unlimited
+  Files found:  3
+=== Files found ===
+  Total: 3
+  Fruit.saver.tar.gz  (105 KB, vendor: Corkscrews)
+  Moonlight-6.1.0.dmg  (57 MB, vendor: MoonlightGameStreaming)
+  Orchard Analytics 7.2.dmg  (0 bytes, vendor: OrchardLabs)
+
+=== Target matches ===
+  MoonlightGameStreaming/Moonlight (1 candidate)
+    [STRONG  ] Moonlight-6.1.0.dmg
+  RaspberryPi/Raspberry-Pi-Imager (0 candidates)
+  Alienator88/Pearcleaner (0 candidates)
+  Biolab/Orange-Data-Mining (0 candidates)
+  Corkscrews/Fruit-Screensaver (1 candidate)
+    [MODERATE] Fruit.saver.tar.gz
+  Corkscrews/Fruit-Screensaver-Default (1 candidate)
+    [MODERATE] Fruit.saver.tar.gz
+  AcmeFruitCo/Fruta-Starter-Kit (0 candidates)
+  Mozilla/Firefox (0 candidates)
+  Google/Google-Chrome (0 candidates)
+  Microsoft/Microsoft-Word (0 candidates)
+  HP/HP-Printer-Drivers (0 candidates)
+  OrchardLabs/Orchard-Analytics (1 candidate)
+    [STRONG  ] Orchard Analytics 7.2.dmg
+  OrchardLabs/Orchard-Analytics-License (1 candidate)
+    [MODERATE] Orchard Analytics 7.2.dmg
+  AcmeFruitCo/AcmeSupport (0 candidates)
+  AcmeFruitCo/Acme-Wallpaper (0 candidates)
+  AcmeFruitCo/Acme-UninstallAgent (0 candidates)
+  PomeloSoftware/Pomelo-Studio (0 candidates)
+  MacAdmins/Default-Browser (0 candidates)
+  MacAdmins/Outset (0 candidates)
+  MacAdmins/Nudge (0 candidates)
+  MacAdmins/IconGrabber (0 candidates)
+  SwiftDialog/SwiftDialog (0 candidates)
+  ScriptingOSX/Desktoppr (0 candidates)
+  KCrawford/Dockutil (0 candidates)
+
+=== Summary ===
+  Targets with candidates:    5 of 24
+  Targets without candidates: 19
+  Unmatched source files:     0
+
+=== Done ===
+  Scanned 3 distributable files in /path/to/vendor-share
+  (matching against /Users/you/Developer/personal/experimental-kitchen/customer/acme/end_result.yaml)

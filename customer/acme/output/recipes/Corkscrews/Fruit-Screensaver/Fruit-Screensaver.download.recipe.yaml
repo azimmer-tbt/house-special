@@ -1,0 +1,45 @@
+Comment: Pattern 2b — GitHub release, rebuilt. The release asset is a .tar.gz holding Fruit.saver; Unarchiver extracts it.
+Description: Downloads the latest Fruit screensaver from GitHub releases.
+Identifier: com.acmefruit.autopkg.download.Fruit-Screensaver
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruit-Screensaver
+  GITHUB_REPO: Corkscrews/fruit
+  ASSET_REGEX: "^Fruit\\.saver\\.tar\\.gz$"
+  # Ad-hoc signed: there is no team ID to pin (see README.md). Recorded on purpose.
+  teamid: "UNSIGNED_NO_TEAMID"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: "%ASSET_REGEX%"
+      include_prereleases: false
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.tar.gz"
+
+  - Processor: EndOfCheckPhase
+
+  # purge_destination keeps repeat runs from tripping over the previous extraction.
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      archive_format: tar_gzip
+      purge_destination: true
+
+  # Fruit.saver is AD-HOC signed only: no Developer ID, no team ID. This
+  # requirement proves the bundle is intact and is the expected bundle ID; it
+  # does NOT prove who published it. See README.md "Signature status".
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/unpack/Fruit.saver"
+      requirement: 'identifier "io.corkscrews.Fruit"'
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/unpack/Fruit.saver/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

@@ -1,0 +1,10 @@
+Identifier: com.acmefruit.autopkg.pkg.ExactMatchApp
+ParentRecipe: com.acmefruit.autopkg.download.ExactMatchApp
+MinimumVersion: "2.7"
+Input:
+  NAME: ExactMatchApp
+Process:
+  - Processor: Copier
+    Arguments:
+      source_path: "%pathname%/ExactMatchApp.app"
+      destination_path: "%RECIPE_CACHE_DIR%/Applications/"

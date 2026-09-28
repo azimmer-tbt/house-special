@@ -1,0 +1,7 @@
+# Malformed CSV — various structural defects (4-column format)
+"","example","GoodApp","https://example.com/good.dmg"          # Valid entry
+"","example","NoUrl",""                                        # Missing URL
+"","example",,"https://example.com/no-app.csv"                 # Missing AppName (empty field)
+,"example","MissingStatus","https://example.com/missing.csv"   # Missing Status (empty field)
+"","","NoVendor","https://example.com/no-vendor.dmg"           # Missing Vendor (empty field)
+"","example","AppOne","https://example.com/app.dmg","extra"    # Too many fields

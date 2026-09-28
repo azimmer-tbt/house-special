@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 5 — Vendor PKG via stable URL
+#
+# Use when the vendor publishes a signed .pkg installer (not a DMG containing a
+# .app) at a stable URL. You are NOT rebuilding the package — the vendor's
+# signed pkg is the output. The unpack steps in the pkg recipe exist solely to
+# read a version number out of the embedded app bundle.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+#
+# DECISION POINTS
+#   1. Is the URL genuinely stable? A redirect that always resolves to "latest"
+#      (Microsoft's go.microsoft.com/fwlink/?linkid=NNNN) is stable. A URL with
+#      a version number baked into the path is NOT — that is Pattern 3b, where
+#      you template %VERSION% from a pinned VERSION Input. Verify with:
+#          curl -sLI "<url>" | grep -i '^location:'
+#   2. Signature — a vendor shipping via stable URL is nearly always signed.
+#      Get the real chain rather than guessing:
+#          curl -sL "<url>" -o /tmp/x.pkg && pkgutil --check-signature /tmp/x.pkg
+#
+# IDENTIFIER: it is com.acmefruit.autopkg.download.AppName — NOT
+# com.acmefruit.autopkg.pkg.download.AppName. Recipe Robot emits the latter and it
+# is wrong; the linter flags it as IDN-003. Normalize before committing.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Vendor PKG download recipe (stable redirect URL).
+Description: Downloads the latest version of REPLACE_APPNAME.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # The .app bundle name INSIDE the package, when it differs from NAME.
+  # NAME is hyphenated for filesystem safety; APP_FILENAME is the real bundle
+  # name with spaces, e.g. NAME: Microsoft-Word / APP_FILENAME: Microsoft Word.
+  APP_FILENAME: REPLACE_APP_FILENAME
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "REPLACE_DOWNLOAD_URL"
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  # For a .pkg, use expected_authority_names (certificate chain), NOT
+  # `requirement` (a code-signing requirement string). `requirement` is for .app
+  # bundles — Patterns 1-4. input_path points at the .pkg itself.
+  #
+  # The last two entries are Apple's standard intermediate/root pair, identical
+  # for every Developer ID Installer cert. Only the first line varies.
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: REPLACE_AUTHORITY_NAME (REPLACE_TEAMID)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+
+# NOTE: %pathname% is safe to reference here and in the child pkg recipe,
+# because URLDownloader sets it. This is the opposite of Pattern 4, where the
+# parent uses Copier and %pathname% is never set. Do not copy that habit across
+# patterns in either direction. See reference/methodology.md item #3.
+#
+# NOTE: no Versioner in this recipe. Unlike Patterns 1-4 you cannot read a
+# version from the download artifact — it is a flat .pkg, not a mountable DMG.
+# Version extraction happens in the pkg recipe, after unpacking.

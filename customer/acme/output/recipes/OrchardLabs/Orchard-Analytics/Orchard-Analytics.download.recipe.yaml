@@ -1,0 +1,45 @@
+# EXAMPLE — no real download. Orchard Labs and Orchard Analytics are fictional;
+# this recipe shows the Pattern 4d shape end to end and passes lint, but there
+# is no DMG to stage. Model: templates/pattern-4c-vendor-drop-dmg/.
+# The site license is NOT in this package: it ships as its own slice,
+# ../Orchard-Analytics-License (Pattern 6c), installed after the app.
+Comment: Pattern 4c — vendor-drop DMG, app only. URLDownloader stages the DMG from vendor_cache; Copier extracts the app.
+Description: Stages, mounts, extracts, and verifies the Orchard Analytics DMG.
+Identifier: com.acmefruit.autopkg.download.Orchard-Analytics
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orchard-Analytics
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/OrchardLabs/Orchard-Analytics/Orchard-Analytics.dmg"
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%NAME%.dmg"
+
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/Orchard Analytics.app"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Orchard Analytics.app"
+      overwrite: true
+
+  # Team ID is a placeholder for the fictional vendor — a real recipe copies the
+  # designated requirement verbatim from `codesign -dr - <app>`.
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Orchard Analytics.app"
+      requirement: >-
+        identifier "com.orchardlabs.analytics"
+        and anchor apple generic
+        and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */
+        and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */
+        and certificate leaf[subject.OU] = "ORCHARD000"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Orchard Analytics.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: EndOfCheckPhase

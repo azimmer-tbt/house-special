@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# postinstall — Fruit screensaver (Acme Fruit Co.)
+#
+# Runs as root. The screensaver bundle is already in /Library/Screen Savers
+# (the "all users" install, so macOS never shows its install prompt).
+# Selecting it is a per-user preference, so this script acts AS the logged-in
+# user via `launchctl asuser` — never by writing into their home as root.
+#
+# Nobody logged in (e.g. installed at the login window or during setup)? Then
+# there is nothing to do now: the LaunchAgent applies it at each user's next
+# login. The helper is idempotent, so running both is safe.
+#
+# Author: Andrew Zimmer <andrew.zimmer@tigerbeetletechnology.com>
+# SPDX-License-Identifier: MIT
+
+set -u
+
+readonly HELPER="/Library/Application Support/AcmeFruit/FruitScreensaver/apply-screensaver.sh"
+
+# $3 is the target volume; only act on the running system.
+if [[ "${3:-/}" != "/" ]]; then
+    exit 0
+fi
+
+console_user="$(/usr/bin/stat -f%Su /dev/console)"
+case "${console_user}" in
+    ""|root|loginwindow|_mbsetupuser)
+        echo "postinstall: no user session; LaunchAgent will apply at next login"
+        exit 0
+        ;;
+esac
+
+console_uid="$(/usr/bin/id -u "${console_user}")" || exit 0
+
+if ! /bin/launchctl asuser "${console_uid}" \
+        /usr/bin/sudo -u "${console_user}" "${HELPER}"; then
+    # Don't fail the install over a preference; the LaunchAgent retries at login.
+    echo "postinstall: could not apply for ${console_user} now; will apply at next login"
+fi
+exit 0

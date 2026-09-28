@@ -1,0 +1,87 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 5 — pkg recipe
+#
+# The FlatPkgUnpacker → PkgPayloadUnpacker → Versioner chain exists ONLY to read
+# a version string out of the embedded app's Info.plist. The package that ships
+# is the vendor's original, copied by PkgCopier and renamed.
+#
+# DECISION POINT — inner component path:
+#
+#   STATIC (below, active): the inner .pkg name never changes between releases,
+#     e.g. Microsoft_Word.pkg. Hardcode it.
+#
+#   VERSIONED (commented): the inner .pkg name contains a version that changes
+#     every release, e.g. MicrosoftEdge-141.0.1.pkg. Use FileFinder with a glob
+#     and reference %found_filename%.
+#
+# Neither is bulletproof. Hardcoded paths break when a vendor starts versioning
+# internal components; globs break when a vendor changes naming entirely. Pick
+# what the vendor ships TODAY. When a recipe breaks after an upstream update,
+# FileFinder is the first tool to reach for.
+#
+# Find out which you need before writing:
+#   curl -sL "<url>" -o /tmp/x.pkg
+#   pkgutil --expand /tmp/x.pkg /tmp/x && ls /tmp/x
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Downloads the latest version of REPLACE_APPNAME and creates a package.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  APP_FILENAME: REPLACE_APP_FILENAME
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpacked"
+
+  # ── STATIC inner component name ───────────────────────────────────────────
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpacked/REPLACE_INNER_PKG_NAME/Payload"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  # ── VERSIONED inner component name ────────────────────────────────────────
+  # Replace the PkgPayloadUnpacker above with these two steps:
+  #
+  #   - Processor: FileFinder
+  #     Arguments:
+  #       pattern: "%RECIPE_CACHE_DIR%/unpacked/*REPLACE_INNER_PKG_GLOB*.pkg"
+  #
+  #   - Processor: PkgPayloadUnpacker
+  #     Arguments:
+  #       pkg_payload_path: "%found_filename%/Payload"
+  #       destination_path: "%RECIPE_CACHE_DIR%/payload"
+  #       purge_destination: true
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/payload/%APP_FILENAME%.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  # The vendor's signed pkg is the output. PkgCopier copies it as-is — no
+  # PkgCreator, no rebuild. Rebuilding would discard the vendor's signature.
+  # pkg_path carries the Acme_ prefix; the linter enforces this as PKG-002.
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%pathname%"
+      pkg_path: "%RECIPE_CACHE_DIR%/Acme_%NAME%.pkg"
+
+  # PathDeleter is CORRECT here — unlike Pattern 4's download recipe, these
+  # targets are guaranteed to exist because the steps above just created them.
+  # PathDeleter is for cleaning up after a step that ran, never for guaranteeing
+  # a clean slate before one. See reference/methodology.md item #2.
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/payload"
+        - "%RECIPE_CACHE_DIR%/unpacked"
+
+# DO NOT use AppPkgCreator anywhere in this chain. It prevents control over the
+# output filename, so the Acme_ prefix cannot be applied. The linter rejects it
+# as PKG-001 / PRO-001. For a DMG-delivered app use Copier + PkgCreator instead;
+# for a vendor .pkg use PkgCopier as above.

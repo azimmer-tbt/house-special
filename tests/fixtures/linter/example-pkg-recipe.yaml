@@ -1,0 +1,30 @@
+# This is a well-formed pkg recipe for testing the linter's parsing.
+# The linter must be able to extract all fields listed in 02-config-parsing.md §2.2
+Description: Packages ExampleApp with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.ExampleApp
+ParentRecipe: com.acmefruit.autopkg.download.ExampleApp
+MinimumVersion: "2.3"
+
+Input:
+  NAME: ExampleApp
+  PKG_ID: com.example.app
+
+Process:
+  - Processor: Copier
+    Arguments:
+      source_path: "%pathname%/ExampleApp.app"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/ExampleApp.app"
+      overwrite: true
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"

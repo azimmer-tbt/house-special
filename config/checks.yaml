@@ -1,0 +1,434 @@
+# AutoPKG Recipe Lint Rules — Runtime Config
+# Consumed by the linter tool (bin/recipe-linter.sh).
+# Each rule follows the structure defined in specs/recipe-linter/01-rule-definitions.md.
+#
+# To add a new rule: add an entry to the rules: array below.
+# To change severity: edit the severity field of an existing rule.
+# No linter code changes needed.
+#
+# Org-specific values are written as tokens and filled in from config/org.yaml
+# when the linter loads this file (lib/toolkit-common.sh: org_render):
+#   {{IDENTIFIER_PREFIX}}          e.g. com.acmefruit.autopkg
+#   {{IDENTIFIER_PREFIX_RE_YAML}}  the same, regex-escaped for a YAML string
+#   {{PKGNAME_PREFIX}}             e.g. Acme_
+#   {{ORG_NAME}}                   e.g. Acme Fruit Co.
+# Keep this file org-neutral: never write a literal org prefix here.
+
+# Every rule is required unless it says `required: false`. A customer's
+# checks.local.yaml may add rules, and may skip only the optional ones
+# (specs/toolkit/02-customers.md FR-04).
+rules:
+  # ── IDENTIFIER NORMALIZATION (§6.7 item 1) ───────────────────────────────
+  - id: "IDN-001"
+    severity: "error"
+    description: "Download Identifier must use {{IDENTIFIER_PREFIX}}.download.AppName namespace"
+    recipe_type: "download"
+    check_target:
+      key: "Identifier"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^{{IDENTIFIER_PREFIX_RE_YAML}}\\.download\\..+$"
+    pass_message: "Download Identifier uses correct namespace"
+    fail_message: "Download Identifier '%value%' must match {{IDENTIFIER_PREFIX}}.download.AppName"
+    prompted_by: "Standards §6.7 item 1 — Recipe Robot can generate <prefix>.pkg.download.*"
+
+  - id: "IDN-002"
+    severity: "error"
+    description: "Pkg Identifier must use {{IDENTIFIER_PREFIX}}.pkg.AppName namespace"
+    recipe_type: "pkg"
+    check_target:
+      key: "Identifier"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^{{IDENTIFIER_PREFIX_RE_YAML}}\\.pkg\\..+$"
+    pass_message: "Pkg Identifier uses correct namespace"
+    fail_message: "Pkg Identifier '%value%' must match {{IDENTIFIER_PREFIX}}.pkg.AppName"
+
+  - id: "IDN-003"
+    severity: "error"
+    description: "Download Identifier must not contain .pkg. in its namespace"
+    recipe_type: "download"
+    check_target:
+      key: "Identifier"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^(?!.*\\.pkg\\.download)"
+    pass_message: "Download Identifier has no .pkg. namespace contamination"
+    fail_message: "Download Identifier '%value%' contains .pkg. in namespace — remove it"
+    prompted_by: "Standards §6.9 — Download Identifier namespace collision bug"
+
+  - id: "IDN-004"
+    severity: "error"
+    description: "ParentRecipe must match download recipe Identifier"
+    recipe_type: "pkg"
+    check_target:
+      key: "ParentRecipe"
+      source: "related-file"
+      related_type: "download_recipe"
+      related_key: "Identifier"
+    allowed_values:
+      type: "exact"
+      pattern: "must-match"
+    pass_message: "ParentRecipe matches download Identifier"
+    fail_message: "ParentRecipe '%value%' does not match download Identifier '%related_value%'"
+    prompted_by: "Standards §6.7 item 1 — Mismatched ParentRecipe breaks recipe chain"
+
+  - id: "IDN-006"
+    severity: "error"
+    description: "ParentRecipe must use the org's {{IDENTIFIER_PREFIX}}.download namespace"
+    recipe_type: "pkg"
+    check_target:
+      key: "ParentRecipe"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^{{IDENTIFIER_PREFIX_RE_YAML}}\\.download\\..+$"
+    pass_message: "ParentRecipe is in the org's namespace"
+    fail_message: "ParentRecipe '%value%' is outside {{IDENTIFIER_PREFIX}}.download — adopt (copy and rebadge) the parent instead of referencing it (Standards §6.10.3)"
+    prompted_by: "Standards §6.10.3 — a House Special repo is self-contained; community parents are copied and rebadged, never referenced"
+
+  - id: "IDN-005"
+    severity: "error"
+    description: "Identifier must not contain doubled segments"
+    recipe_type: "both"
+    check_target:
+      key: "Identifier"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^(?!.*\\.[a-z]+\\.\\1)"
+    pass_message: "Identifier has no doubled segments"
+    fail_message: "Identifier '%value%' contains doubled segments (e.g., .pkg.pkg.)"
+    prompted_by: "Standards §6.9 — Recipe Robot v2.5.0 generates doubled namespaces"
+
+  # ── DOWNLOAD SOURCE PATTERNS (§6.7 item 2) ──────────────────────────────
+  - id: "SRC-001"
+    severity: "error"
+    description: "URLDownloader must not use ephemeral GitHub release asset URL"
+    recipe_type: "download"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "not_exists"
+      pattern: "release-assets\\.githubusercontent\\.com|github\\.com/[^/]+/[^/]+/releases/download/"
+    pass_message: "No ephemeral GitHub release asset URLs found"
+    fail_message: "URLDownloader contains ephemeral GitHub URL — replace with GitHubReleasesInfoProvider"
+    prompted_by: "Standards §6.9 — Expired GitHub blob URLs break recipes after minutes"
+
+  - id: "SRC-002"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "URLDownloader with embedded version number is brittle"
+    recipe_type: "download"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "not_exists"
+      pattern: "url:.*[0-9]+\\.[0-9]+\\.[0-9]+"
+    pass_message: "No hardcoded version numbers in download URLs"
+    fail_message: "URLDownloader URL contains embedded version number — will break on next release"
+    prompted_by: "Standards §6.7 item 2 — Hardcoded versioned URLs work once, then break"
+
+  - id: "SRC-003"
+    severity: "info"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Stable URLDownloader without dynamic provider — manual verification needed"
+    recipe_type: "download"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "exists"
+      pattern: "(SparkleUpdateInfoProvider|GitHubReleasesInfoProvider|URLTextSearcher)"
+    pass_message: "Dynamic download provider found"
+    fail_message: "Only URLDownloader present (no Sparkle/GitHub/URLTextSearcher) — verify with curl -LI"
+    prompted_by: "Standards §6.7 item 2 — Stable redirect URLs are acceptable but must be verified"
+
+  # ── PKG NAMING (§6.7 item 3) ───────────────────────────────────────────
+  - id: "PKG-001"
+    severity: "error"
+    description: "AppPkgCreator processor is prohibited"
+    recipe_type: "pkg"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "not_exists"
+      pattern: "AppPkgCreator"
+    pass_message: "No AppPkgCreator found"
+    fail_message: "AppPkgCreator is prohibited — use Copier + PkgCreator or PkgCopier"
+    prompted_by: "Standards §6.7 item 3, §6.9 — AppPkgCreator prevents {{PKGNAME_PREFIX}} naming"
+
+  - id: "PKG-002"
+    severity: "error"
+    description: "A package built with PkgCreator must be named with the {{PKGNAME_PREFIX}} prefix"
+    recipe_type: "pkg"
+    allowed_values:
+      type: "exists_any"
+      conditions:
+        # the pkgname carries the org prefix
+        - source: "self"
+          key: "Process"
+          pattern: "pkgname:[[:space:]]*\"?{{PKGNAME_PREFIX}}"
+        # or the recipe doesn't build a package at all (PkgCopier / Copier
+        # carry the vendor's artifact through unchanged — no prefix)
+        - source: "self"
+          key: "Process"
+          pattern: "!Processor:[[:space:]]*PkgCreator"
+    pass_message: "Package naming follows the {{PKGNAME_PREFIX}} rule"
+    fail_message: "PkgCreator output must be named {{PKGNAME_PREFIX}}%%NAME%% — set pkgname to {{PKGNAME_PREFIX}}%%NAME%%"
+    prompted_by: "Standards §6.7 item 3 — the {{PKGNAME_PREFIX}} prefix marks packages built in-house; vendor copies keep the vendor's name"
+  # ── CODE SIGNATURE VERIFICATION (§6.7 item 5 / §3.7) ───────────────────
+  - id: "CSV-001"
+    severity: "error"
+    description: "Download recipe must verify code signing, or declare that nothing is signed"
+    recipe_type: "download"
+    allowed_values:
+      type: "exists_any"
+      conditions:
+        - source: "self"
+          key: "Process"
+          pattern: "CodeSignatureVerifier"
+        # Explicit, documented escape hatch (README must say why — Standards §6.7 item 8)
+        - source: "self"
+          key: "Input.NO_CODE_SIGNATURE_REQUIRED"
+          pattern: "^([Tt]rue|[Yy]es|1)$"
+    pass_message: "Code signing is verified or explicitly declared absent"
+    fail_message: "Add CodeSignatureVerifier, or set Input.NO_CODE_SIGNATURE_REQUIRED: true and document why in README.md"
+    prompted_by: "Standards §3.7 — Every download must verify code signing"
+  - id: "CSV-005"
+    severity: "warning"
+    description: "Signature check should pin the publisher (team ID), or record that none exists"
+    recipe_type: "download"
+    allowed_values:
+      type: "exists_any"
+      conditions:
+        # requirement string pinned to a team ID
+        - source: "self"
+          key: "Process"
+          pattern: "subject\\.OU"
+        # pkg sources verify by certificate chain instead
+        - source: "self"
+          key: "Process"
+          pattern: "expected_authority_names"
+        # publisher has no team ID (ad-hoc or unsigned) — recorded on purpose
+        - source: "self"
+          key: "Input.teamid"
+          pattern: "^UNSIGNED_NO_TEAMID$"
+        - source: "self"
+          key: "Input.NO_CODE_SIGNATURE_REQUIRED"
+          pattern: "^([Tt]rue|[Yy]es|1)$"
+    pass_message: "Publisher is pinned, or its absence is recorded"
+    fail_message: "Requirement string may be hand-authored — pin subject.OU (or set teamid: UNSIGNED_NO_TEAMID in Input if the publisher has no team ID)"
+    prompted_by: "Standards §6.5 — requirement strings must be extracted from codesign, not hand-authored"
+  # ── VERSION EXTRACTION (§6.7 item 6) ───────────────────────────────────
+  - id: "VER-001"
+    severity: "error"
+    description: "Version must be accounted for: extracted by a processor, or pinned"
+    recipe_type: "download"
+    allowed_values:
+      type: "exists_any"
+      conditions:
+        # A: extracted at run time
+        - source: "self"
+          key: "Process"
+          pattern: "(SparkleUpdateInfoProvider|GitHubReleasesInfoProvider|Versioner|AppDmgVersioner)"
+        # B: pinned in the recipe (sources with no version metadata)
+        - source: "self"
+          key: "Input.version"
+          pattern: ".+"
+        # C: Pattern 5 — the pkg recipe extracts the version after FlatPkgUnpacker
+        - source: "related-file"
+          related_type: "pkg_recipe"
+          related_key: "Process"
+          pattern: "Versioner"
+    pass_message: "Version is accounted for"
+    fail_message: "No version source — add a version processor, or pin version in Input (AutoPkg never reads .overrides)"
+    prompted_by: "Standards §6.7 item 6 — Version is required for package metadata"
+  - id: "VER-002"
+    severity: "error"
+    description: "Pattern 5: version extraction in pkg recipe, not download recipe"
+    recipe_type: "download"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "not_exists"
+      pattern: "FlatPkgUnpacker.*Versioner|Versioner.*FlatPkgUnpacker"
+    pass_message: "No version extraction in download recipe (Pattern 5 compliant)"
+    fail_message: "Pattern 5 recipes must extract version in pkg recipe after FlatPkgUnpacker"
+    prompted_by: "Standards §6.7 item 6 — Pattern 5: version extraction happens in pkg recipe"
+
+  # ── NAMING CONVENTIONS (§3.3) ──────────────────────────────────────────
+  - id: "NAM-001"
+    severity: "error"
+    description: "Recipe filename must follow AppName.{download,pkg}.recipe.yaml"
+    recipe_type: "both"
+    check_target:
+      key: "filename"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^[A-Za-z0-9-]+\\.(download|pkg)\\.recipe\\.yaml$"
+    pass_message: "Filename follows naming convention"
+    fail_message: "Filename '%value%' must match AppName.download.recipe.yaml or AppName.pkg.recipe.yaml"
+    prompted_by: "Standards §3.3 — Standardized naming for consistency"
+
+  - id: "NAM-002"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Avoid dots in the app name portion of filenames"
+    recipe_type: "both"
+    check_target:
+      key: "filename"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^[A-Za-z0-9-]+\\.(download|pkg)\\.recipe\\.yaml$"
+    pass_message: "No extra dots in app name portion"
+    fail_message: "Filename '%value%' has dots in app name — replace with hyphens (drawio not draw.io)"
+    prompted_by: "Standards §3.3 — Dots cause parsing ambiguity"
+
+  - id: "NAM-003"
+    severity: "info"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "NAME Input should match app directory and filename"
+    recipe_type: "both"
+    check_target:
+      key: "Input.NAME"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: ".+"  # Extracted app name cross-referenced in the linter
+    pass_message: "NAME matches app directory and filename"
+    fail_message: "NAME '%value%' should match app name derived from filename '%file%'"
+    prompted_by: "Standards §3.3 — NAME consistency avoids confusion"
+
+  # ── PROHIBITED PROCESSORS (§6.8) ─────────────────────────────────────────
+  - id: "PRO-001"
+    severity: "error"
+    description: "AppPkgCreator is prohibited"
+    recipe_type: "pkg"
+    check_target:
+      key: "Process"
+      source: "self"
+    allowed_values:
+      type: "not_exists"
+      pattern: "AppPkgCreator"
+    pass_message: "No prohibited processors found"
+    fail_message: "AppPkgCreator is prohibited — use Copier + PkgCreator (Patterns 1-4) or PkgCopier (Pattern 5)"
+    prompted_by: "Standards §6.9 — AppPkgCreator prevents {{PKGNAME_PREFIX}} naming and control over output filename"
+
+  # ── DIRECTORY LAYOUT (§3.1) ─────────────────────────────────────────────
+  - id: "DIR-001"
+    severity: "info"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Recipes should be under VendorName/AppName/ directory structure"
+    recipe_type: "both"
+    check_target:
+      key: "filename"
+      source: "directory"
+    allowed_values:
+      type: "regex"
+      pattern: "^.+/[^/]+/[^/]+\\.(download|pkg)\\.recipe\\.yaml$"
+    pass_message: "Recipe is in VendorName/AppName/ directory structure"
+    fail_message: "Recipe '%file%' should be placed under <VendorName>/<AppName>/ hierarchy"
+    prompted_by: "Standards §3.1 — Standardized directory layout for organization"
+
+  # ── REQUIRED FILE PAIRS (§3.1) ──────────────────────────────────────────
+  - id: "SEN-001"
+    severity: "error"
+    description: "Every download recipe needs a corresponding pkg recipe"
+    recipe_type: "both"
+    check_target:
+      key: "filename"
+      source: "related-file"
+      related_type: "pkg_recipe"
+      related_key: "exists"
+    allowed_values:
+      type: "exists"
+      pattern: ".+"
+    pass_message: "Recipe pair is complete"
+    fail_message: "Download recipe '%file%' has no corresponding pkg recipe"
+    prompted_by: "Standards §3.1 — Each app needs both download and pkg recipes"
+
+  # ── METADATA ────────────────────────────────────────────────────────────
+  - id: "MIN-001"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Recipe should specify MinimumVersion: '2.3' or higher"
+    recipe_type: "both"
+    check_target:
+      key: "MinimumVersion"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^['\"]?(2\\.([3-9]|[1-9][0-9])|[3-9]\\.[0-9]+)['\"]?$"
+    pass_message: "MinimumVersion is 2.3 or higher"
+    fail_message: "MinimumVersion '%value%' must be 2.3 or higher (or missing)"
+    prompted_by: "Common best practice — AutoPkg 2.3 required for YAML recipe support"
+
+  # ── RECIPE COMMENTS (specs/recipe-linter/04-recipe-comments.md) ──────────────────
+  - id: "CMT-001"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Download recipe has `Comment:` key"
+    recipe_type: "download"
+    check_target:
+      key: "Comment"
+      source: "self"
+    allowed_values:
+      type: "exists"
+      pattern: ".+"
+    pass_message: "Download recipe has a Comment field"
+    fail_message: "Download recipe must have a Comment field with pattern + rationale"
+    prompted_by: "specs/recipe-linter/04-recipe-comments.md §1.1"
+
+  - id: "CMT-002"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Pkg recipe has `Comment:` key"
+    recipe_type: "pkg"
+    check_target:
+      key: "Comment"
+      source: "self"
+    allowed_values:
+      type: "exists"
+      pattern: ".+"
+    pass_message: "Pkg recipe has a Comment field"
+    fail_message: "Pkg recipe must have a Comment field with pattern + rationale"
+    prompted_by: "specs/recipe-linter/04-recipe-comments.md §1.1"
+
+  - id: "CMT-003"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "Comment starts with \"Pattern <N>\""
+    recipe_type: "both"
+    check_target:
+      key: "Comment"
+      source: "self"
+    allowed_values:
+      type: "regex"
+      pattern: "^Pattern [0-9]+[a-z]?"
+    pass_message: "Comment starts with Pattern identifier"
+    fail_message: "Comment '%value%' must start with Pattern N designation"
+    prompted_by: "specs/recipe-linter/04-recipe-comments.md §1.2"
+
+  - id: "CMT-004"
+    severity: "warning"
+    required: false          # a customer may skip it (checks.local.yaml)
+    description: "The Comment's pattern matches what the recipe does"
+    recipe_type: "both"
+    check_target:
+      key: "Comment"
+      source: "self"
+    allowed_values:
+      type: "classification"
+    pass_message: "Comment's pattern matches the classification"
+    fail_message: "Comment claims Pattern %value%, but the processors say Pattern %related_value% (run bin/classify-recipe.sh on this folder for the reasoning)"
+    prompted_by: "specs/recipe-linter/04-recipe-comments.md §1.4; methodology lesson 26 (labels drift from what the recipe does)"

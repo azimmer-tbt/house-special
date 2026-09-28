@@ -1,0 +1,41 @@
+Comment: Pattern 3c — scraped direct URL. URLTextSearcher finds the versioned DMG link on the vendor's download page.
+Description: Downloads the latest Orange Data Mining DMG (Apple silicon) from the vendor's download page.
+Identifier: com.acmefruit.autopkg.download.Orange-Data-Mining
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orange-Data-Mining
+  SEARCH_URL: "https://orangedatamining.com/download/"
+  # The page links one DMG per architecture, with the version and bundled Python
+  # version in the filename. Change arm64 to x86_64 for Intel Macs.
+  SEARCH_PATTERN: "(?P<url>https://download\\.biolab\\.si/download/files/Orange3-[\\d.]+-Python[\\d.]+-arm64\\.dmg)"
+
+Process:
+  # The filename is versioned, so a fixed URL would break on the next release
+  # (SRC-002). Scrape the current link from the download page instead.
+  - Processor: URLTextSearcher
+    Arguments:
+      url: "%SEARCH_URL%"
+      re_pattern: "%SEARCH_PATTERN%"
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%url%"
+      filename: "%NAME%.dmg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/Orange.app"
+      requirement: >-
+        identifier "si.biolab.orange"
+        and anchor apple generic
+        and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */
+        and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */
+        and certificate leaf[subject.OU] = "556DY3FJ29"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%pathname%/Orange.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

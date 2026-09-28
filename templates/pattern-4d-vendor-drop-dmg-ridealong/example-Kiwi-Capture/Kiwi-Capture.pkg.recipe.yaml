@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4d — Pkg Recipe for Vendor-Drop DMG with Ridealong Scripts/Payload
+#
+# The download recipe extracted the .app from the DMG and placed it at:
+#   %RECIPE_CACHE_DIR%/%NAME%/Applications/Kiwi Capture.app
+# It also staged the postinstall script at %RECIPE_CACHE_DIR%/scripts/
+# and the LicenseKey at %RECIPE_CACHE_DIR%/%NAME%/Users/Shared/...
+#
+# This recipe packages everything with the postinstall script and proper
+# ownership on the license key directory tree.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 4d — vendor-drop DMG; PkgCreator adds the postinstall and license file.
+Description: Packages Kiwi Capture with Acme naming convention, postinstall
+  preferences script, and license key file.
+Identifier: com.acmefruit.autopkg.pkg.Kiwi-Capture
+ParentRecipe: com.acmefruit.autopkg.download.Kiwi-Capture
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Kiwi-Capture
+  PKG_ID: com.acmefruit.pkg.Kiwi-Capture
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        scripts: "%RECIPE_CACHE_DIR%/scripts"
+        chown:
+          - path: Applications
+            user: root
+            group: admin
+          - path: "Users/Shared/KiwiSoft/Kiwi-Capture"
+            user: root
+            group: wheel
+          - path: "Users/Shared/KiwiSoft/Kiwi-Capture/LicenseKey"
+            user: root
+            group: wheel
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"

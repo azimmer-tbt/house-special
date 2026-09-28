@@ -1,0 +1,34 @@
+# EXAMPLE — no real download (fictional in-house package). See the download recipe.
+Comment: Pattern 6b — rebuilt package, payload + scripts. PkgCreator rebuilds the helper app and its LaunchAgent; the postinstall loads the agent for the logged-in user.
+Description: Rebuilds AcmeSupport with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.AcmeSupport
+ParentRecipe: com.acmefruit.autopkg.download.AcmeSupport
+MinimumVersion: "2.3"
+
+Input:
+  NAME: AcmeSupport
+  # MUST match the legacy package's identifier so the rebuild upgrades the
+  # existing receipt instead of installing beside it (see the 6b template).
+  PKG_ID: com.acmefruit.support
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        scripts: "%RECIPE_CACHE_DIR%/scripts"
+        chown:
+          - path: Applications
+            user: root
+            group: admin
+          - path: Library
+            user: root
+            group: wheel
+          - path: Library/LaunchAgents/com.acmefruit.support.plist
+            user: root
+            group: wheel
+            mode: "0644"

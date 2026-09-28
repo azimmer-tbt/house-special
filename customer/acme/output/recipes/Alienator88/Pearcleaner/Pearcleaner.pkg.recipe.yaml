@@ -1,0 +1,30 @@
+Comment: Pattern 2b — GitHub release DMG. Copier stages the app; PkgCreator builds the Acme_ package.
+Description: Packages Pearcleaner app uninstaller with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Pearcleaner
+ParentRecipe: com.acmefruit.autopkg.download.Pearcleaner
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Pearcleaner
+  PKG_ID: com.acmefruit.pkg.Pearcleaner
+
+Process:
+  # Copier mounts the DMG, copies the app out, and unmounts in one step.
+  - Processor: Copier
+    Arguments:
+      source_path: "%pathname%/Pearcleaner.app"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Pearcleaner.app"
+      overwrite: true
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin

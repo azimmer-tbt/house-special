@@ -1,0 +1,138 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4d — Vendor-Provided DMG with Ridealong Scripts/Payload
+#
+# Use when the vendor provides a DMG containing a .app bundle AND the recipe
+# needs to stage additional org-proprietary files (postinstall scripts,
+# license keys, configuration plists, etc.) alongside the .app.
+#
+# The DMG is staged in the repo under build/vendor_cache/ and downloaded into
+# the AutoPkg cache via URLDownloader using a file:// URI. The ridealong files
+# are staged via Copier from the same vendor_cache location.
+#
+# The recipe chain:
+#   URLDownloader (DMG) → Copier (scripts) → Copier (payload) → Copier (DMG mount + .app extract) → CodeSignatureVerifier → Versioner
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+#
+# DECISION POINTS
+#   1. VENDOR_CACHE_ROOT — confirm the path depth. The default assumes the
+#      corporate layout (build/vendor_cache/). If using init-recipe-repo.sh
+#      with --vendor-cache vendor_cache, adjust accordingly.
+#   2. DMG mounting — Copier handles DMG mounting natively when source_path
+#      points inside a DMG. No explicit DmgMounter step needed.
+#   3. LOCAL_SCRIPTS_PATH / LOCAL_PAYLOAD_PATH — these directories live under
+#      vendor_cache/VENDOR/APPNAME/ and contain scripts/ + payload/ subdirs.
+#      Each Copier call stages the content into RECIPE_CACHE_DIR for PkgCreator.
+#   4. Signed vs unsigned — confirm with `codesign -dv` on the .app inside the
+#      DMG. If genuinely unsigned, see the UNSIGNED VARIANT at the bottom.
+#   5. APP_FIND_PATTERN — the exact .app bundle name inside the DMG.
+#      Use `hdiutil attach -nobrowse <DMG> && ls /Volumes/<volume>/`
+#      to verify the exact name (including spaces).
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 4 (DMG source). URLDownloader stages DMG + scripts + payload from vendor_cache.
+Description: Stages DMG, scripts, and payload; mounts and extracts .app; verifies REPLACE_APPNAME from a vendor-provided DMG.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  teamid: "REPLACE_TEAMID"
+
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below repo
+  # root, so escaping to the root needs ../../../ — two dots lands you inside
+  # recipes/, not beside it.
+  #
+  # The segment after ../../../ depends on how the target repo is laid out:
+  #   build/vendor_cache/   the production-repo layout (reference/recipe-standards.md)
+  #   vendor_cache/         a local repo created with
+  #                         init-recipe-repo.sh --vendor-cache vendor_cache
+  # Match the repo you are writing into.
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../build/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/REPLACE_FILENAME"
+
+  # Explicit filename for URLDownloader's destination in RECIPE_CACHE_DIR
+  filename: "REPLACE_FILENAME"
+
+  # Paths to ridealong content under vendor_cache
+  LOCAL_SCRIPTS_PATH: "%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/scripts"
+  LOCAL_PAYLOAD_PATH: "%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/payload"
+
+  # Exact .app bundle name as it appears inside the DMG (used by Copier)
+  APP_FIND_PATTERN: "REPLACE_APP_BUNDLE_IN_DMG"
+
+Process:
+  # 1. Stage the DMG from vendor_cache via URLDownloader (file:// URI).
+  #    Same processor works with https:// for remote blob stores.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # 2. Stage ridealong scripts alongside for the pkg recipe.
+  #    Copier copies the entire scripts/ directory into RECIPE_CACHE_DIR.
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_SCRIPTS_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      overwrite: true
+
+  # 3. Stage org-specific payload files (license keys, config plists, etc.)
+  #    under the pkgroot so PkgCreator bundles them into the final pkg.
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_PAYLOAD_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      overwrite: true
+
+  # 4. Copier mounts the DMG from the downloads/ subdirectory (where
+  #    URLDownloader placed it) and extracts the .app. Copier handles
+  #    mounting DMGs natively when source_path points inside one.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/%APP_FIND_PATTERN%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app"
+      overwrite: true
+
+  # 5. Verify code signature on the extracted .app bundle.
+  #    Use `codesign -dv --verbose=4` on the actual .app inside the DMG to
+  #    obtain the correct requirement string and team identifier.
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app"
+      requirement: >-
+        anchor apple generic and identifier "REPLACE_BUNDLE_ID" and
+        (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or
+        certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and
+        certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and
+        certificate leaf[subject.OU] = "REPLACE_TEAMID")
+
+  # 6. Read version from the extracted .app bundle's Info.plist
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: EndOfCheckPhase
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UNSIGNED VARIANT
+#
+# Some vendor DMGs contain genuinely unsigned .app bundles — this is the
+# expected case when Jamf's MDM install-override is the real trust boundary,
+# not an edge case. Confirm first:
+#
+#     hdiutil attach -nobrowse <DMG>
+#     codesign -dv --verbose=4 "/Volumes/<Volume>/<App>.app"
+#     hdiutil detach /Volumes/<Volume>
+#
+# If genuinely unsigned: DELETE the CodeSignatureVerifier step above, DELETE
+# the teamid Input, and add to Input: instead —
+#
+#   # No CodeSignatureVerifier: vendor ships this .app unsigned (confirmed
+#   # via codesign -dv on YYYY-MM-DD). Trust boundary is Jamf MDM.
+#   NO_CODE_SIGNATURE_REQUIRED: true
+#
+# Declare it explicitly with a comment saying WHY. Never silently omit the
+# verifier — "unsigned vendor artifact" and "no signable content" are different
+# reasons for the same escape hatch, and the next reader needs to know which.
+# ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 7 — pkg recipe (Faux Vendor DMG source)
+#
+# Builds a flat package from the .app extracted by the parent download recipe.
+# Uses Versioner (to read the .app's bundle version) + PkgCreator (to build
+# the package with a chown block).
+#
+# DO NOT reference %pathname% in this recipe. URLDownloader sets %pathname%;
+# Copier does NOT. A Pattern 7 parent uses URLDownloader → Copier (mount),
+# so while URLDownloader *does* set %pathname%, the .app path is constructed
+# from %RECIPE_CACHE_DIR%/%NAME%/Applications/... which IS shared across the
+# parent→child boundary.
+# See reference/methodology.md items #3 and #4.
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Pattern 7 (faux vendor DMG). PkgCreator with chown block.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Vendor's own bundle identifier. Read it from the .app inside the DMG:
+  #   hdiutil attach -nobrowse <DMG>
+  #   plutil -p "/Volumes/<Volume>/<App>.app/Contents/Info.plist" | grep CFBundleIdentifier
+  #   hdiutil detach /Volumes/<Volume>
+  # If you cannot confirm it, invent one AND say so in this app's README.md.
+  PKG_ID: REPLACE_PKG_ID
+
+Process:
+  # Read version from the .app bundle's Info.plist (sets %version%)
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  # Build the org-prefixed package with explicit ownership
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"

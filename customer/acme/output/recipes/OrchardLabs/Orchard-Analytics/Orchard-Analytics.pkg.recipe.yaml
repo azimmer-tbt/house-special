@@ -1,0 +1,24 @@
+# EXAMPLE — no real download (fictional vendor). See the download recipe.
+Comment: Pattern 4c — vendor-drop DMG, app only. PkgCreator builds the Acme_ app package; the license is a separate slice.
+Description: Packages Orchard Analytics with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Orchard-Analytics
+ParentRecipe: com.acmefruit.autopkg.download.Orchard-Analytics
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orchard-Analytics
+  PKG_ID: com.acmefruit.pkg.Orchard-Analytics
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin

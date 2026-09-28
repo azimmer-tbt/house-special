@@ -1,0 +1,39 @@
+Comment: Pattern 2b — GitHub release DMG. GitHubReleasesInfoProvider + URLDownloader; app verified inside the mounted DMG.
+Description: Downloads the latest Moonlight game-streaming client DMG from GitHub releases.
+Identifier: com.acmefruit.autopkg.download.Moonlight
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Moonlight
+  GITHUB_REPO: moonlight-stream/moonlight-qt
+  ASSET_REGEX: "Moonlight-[\\d.]+\\.dmg$"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: "%ASSET_REGEX%"
+      include_prereleases: false
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.dmg"
+
+  - Processor: EndOfCheckPhase
+
+  # Verify the app inside the DMG (the DMG itself is not what gets deployed).
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/Moonlight.app"
+      requirement: >-
+        identifier "com.moonlight-stream.Moonlight"
+        and anchor apple generic
+        and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */
+        and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */
+        and certificate leaf[subject.OU] = "45U78722YL"
+
+  # GitHub tags don't always match the app's marketing version; read it from the bundle.
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%pathname%/Moonlight.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

@@ -1,0 +1,116 @@
+{
+  "findings": [],
+  "pairs": {
+    "Orchard-Analytics": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 17,
+          "processor": "URLDownloader",
+          "recipe": "Orchard-Analytics.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Orchard-Analytics.download.recipe.yaml": "Pattern 4c \u2014 vendor-drop DMG, app only. URLDownloader stages the DMG from vendor_cache; Copier extracts the app.",
+        "Orchard-Analytics.pkg.recipe.yaml": "Pattern 4c \u2014 vendor-drop DMG, app only. PkgCreator builds the Acme_ app package; the license is a separate slice."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Orchard-Analytics",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Orchard-Analytics.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Orchard-Analytics",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Orchard-Analytics",
+          "file": "Orchard-Analytics.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 13,
+          "processor": "PkgCreator",
+          "recipe": "Orchard-Analytics.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Applications/Orchard Analytics.app"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 13,
+          "processor": "PkgCreator",
+          "recipe": "Orchard-Analytics.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_Orchard-Analytics"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "requirement",
+          "line": 30,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Orchard-Analytics.download.recipe.yaml",
+          "step": 2
+        },
+        "pins_team_id": true,
+        "value": "requirement"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 17,
+          "processor": "URLDownloader",
+          "recipe": "Orchard-Analytics.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/OrchardLabs/Orchard-Analytics/Orchard-Analytics.dmg",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 40,
+          "processor": "Versioner",
+          "recipe": "Orchard-Analytics.download.recipe.yaml",
+          "step": 3
+        },
+        "processor": "Versioner",
+        "value": "processor"
+      }
+    }
+  }
+}

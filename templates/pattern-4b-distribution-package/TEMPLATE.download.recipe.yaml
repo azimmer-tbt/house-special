@@ -1,0 +1,101 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4b — Distribution Vendor Package (no download URL)
+#
+# Use when the vendor hands you a distribution-format .pkg file (multi-
+# component, contains Distribution + inner component pkgs). PkgCopier crashes
+# on distribution packages with "list index out of range". Use Copier instead.
+#
+# The installer is staged in the repo under build/vendor_cache/ and copied into
+# the AutoPkg cache from there via URLDownloader with a file:// URI.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+#
+# DECISION POINTS
+#   1. VENDOR_CACHE_ROOT depth — count it, don't eyeball it. See notes below.
+#   2. Signed vs unsigned — confirm with `pkgutil --check-signature`, never
+#      `codesign`. If unsigned, use the UNSIGNED VARIANT at the bottom.
+#   3. The pkg recipe uses Copier (not PkgCopier) for bit-for-bit copy — no
+#      org package-name prefix since this is the vendor's signed distribution artifact.
+#
+# DO NOT add a PathDeleter step at the top of this recipe. The upstream README's
+# Pattern 4 skeleton shows one; it is wrong. PathDeleter errors when its target
+# does not exist, which is exactly the state on a first run. Copier already
+# overwrites its destination. See reference/methodology.md item #2.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 4b vendor-drop distribution pkg. Copier bit-for-bit copy.
+Description: Imports a locally staged copy of REPLACE_APPNAME.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Version: a vendor drop rarely reports one you can read, so add a pinned
+  # version Input here (for example version: "1.2.3") and bump it with each new
+  # drop. Lint rule VER-001 looks for it. Pin it in Input, not in .overrides:
+  # AutoPkg never reads .overrides.
+  teamid: "REPLACE_TEAMID"
+  authority_name: "REPLACE_AUTHORITY_NAME"
+
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below repo
+  # root, so escaping to the root needs ../../../ — two dots lands you inside
+  # recipes/, not beside it.
+  #
+  # The segment after ../../../ depends on how the target repo is laid out:
+  #   build/vendor_cache/   the production-repo layout (reference/recipe-standards.md —
+  #                         the GitHub Actions workflow copies installers here
+  #                         and the Git LFS plan is pinned to it)
+  #   vendor_cache/         a local repo created with
+  #                         init-recipe-repo.sh --vendor-cache vendor_cache
+  # Match the repo you are writing into; a recipe carrying the wrong one fails
+  # at runtime, not at lint time.
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../build/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/REPLACE_FILENAME"
+
+  # Explicit filename for URLDownloader's destination in RECIPE_CACHE_DIR
+  filename: "download_%NAME%.pkg"
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  - Processor: EndOfCheckPhase
+
+  # expected_authority_names needs the FULL chain, not just the vendor leaf.
+  # The last two entries are Apple's standard intermediate/root pair for every
+  # Developer ID Installer cert — identical for every vendor, safe to keep
+  # verbatim. Only the first line changes. Omitting them produces "Mismatch in
+  # authority names" that only surfaces against a genuinely signed pkg.
+  # See reference/methodology.md item #6.
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: %authority_name% (%teamid%)"
+        - Developer ID Certification Authority
+        - Apple Root CA
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UNSIGNED VARIANT
+#
+# Roughly half of vendor-drop installers turn out to be genuinely unsigned —
+# this is the expected case when Jamf's MDM install-override is the real trust
+# boundary, not an edge case. Confirm first:
+#
+#     pkgutil --check-signature build/vendor_cache/<Vendor>/<App>/<file>.pkg
+#
+# Never use `codesign` on a .pkg — it reads Mach-O binaries and app bundles, and
+# reports "not signed at all" on genuinely signed flat packages.
+#
+# If genuinely unsigned: DELETE the CodeSignatureVerifier step above, DELETE the
+# teamid and authority_name Inputs, and add to Input: instead —
+#
+#   # No CodeSignatureVerifier: vendor ships this pkg unsigned (confirmed via
+#   # pkgutil --check-signature on YYYY-MM-DD). Trust boundary is Jamf MDM.
+#   NO_CODE_SIGNATURE_REQUIRED: true
+#
+# Declare it explicitly with a comment saying WHY. Never silently omit the
+# verifier — "unsigned vendor artifact" and "no signable content" are different
+# reasons for the same escape hatch, and the next reader needs to know which.
+# ─────────────────────────────────────────────────────────────────────────────

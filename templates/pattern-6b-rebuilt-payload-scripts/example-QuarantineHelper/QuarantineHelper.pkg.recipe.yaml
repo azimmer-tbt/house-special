@@ -1,0 +1,102 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6b — pkg recipe
+#
+# Rebuilds the package from the extracted payload and scripts. Four decisions
+# here have no equivalent in Pattern 4, and three of them fail silently when
+# wrong. See TEMPLATE.download.recipe.yaml for the full commentary; the key
+# points are summarised below.
+#
+# ── 1. PACKAGE IDENTIFIER — highest consequence ──────────────────────────────
+# PKG_ID MUST match the original package's identifier. macOS keys installer
+# receipts on it: match, and the rebuild upgrades the existing install; differ,
+# and it installs alongside, leaving two receipts claiming the same files.
+# Nothing errors. You find out later.
+#   Original:  pkgutil --pkg-info <identifier>
+#   From pkg:  pkgutil --expand <file>.pkg /tmp/x && \
+#              grep -o 'identifier="[^"]*"' /tmp/x/PackageInfo
+# pkg-reverse.sh reads this into blueprint.conf. If it could not, do not guess —
+# record what you chose and why in this app's README.
+#
+# ── 2. INSTALL LOCATION — silent when wrong ──────────────────────────────────
+# PkgCreator has NO install-location argument. The structure inside pkgroot IS
+# the install location. If the original declared install-location="/" its payload
+# is rooted at /, so the tree must start with Library/, Applications/, etc. If it
+# declared something else, the tree must be rooted to match.
+#   Original's file list:  pkgutil --files <identifier>
+# Compare that against `find payload -type f` before building. Mismatch here
+# installs everything to the wrong place with no error at build time.
+#
+# ── 3. SCRIPTS ───────────────────────────────────────────────────────────────
+# PkgCreator takes a scripts DIRECTORY and rejects the build if preinstall or
+# postinstall exist but are not executable. pkg-reverse.sh sets that bit and git
+# preserves it. Read the scripts before trusting them — extracted scripts often
+# reference paths, receipts, or versions that no longer hold.
+#
+# ── 4. OWNERSHIP ─────────────────────────────────────────────────────────────
+# PkgCreator's ditto runs as root and preserves on-disk ownership, so a payload
+# extracted under sudo needs NO chown block. A payload extracted without sudo is
+# owned by whoever ran the extractor, and ownership must be reconstructed from
+# the original's BOM. Extracting as root is strictly better; see the chown notes
+# below for when you cannot.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6b — rebuilt package. Payload extracted from QuarantineHelper-legacy.pkg, source files not available.
+Description: Rebuilds QuarantineHelper with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.QuarantineHelper
+ParentRecipe: com.acmefruit.autopkg.download.QuarantineHelper
+MinimumVersion: "2.3"
+
+Input:
+  NAME: QuarantineHelper
+  PKG_ID: com.acmefruit.pkg.QuarantineHelper
+  version: "1.0.0"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+        # QuarantineHelper has no installer scripts, but the scripts: key is
+        # retained for structural consistency with Pattern 6b. Delete it if
+        # your app has no scripts.
+        scripts: "%RECIPE_CACHE_DIR%/scripts"
+
+        # The payload was extracted WITHOUT root, so on-disk ownership is wrong
+        # and must be restored here. Entries below are rolled up per directory —
+        # PkgCreator's chown walks the tree, so one entry covers everything
+        # beneath it.
+        #
+        # Do NOT add a "mode" key to a rollup entry unless the whole subtree
+        # shares one mode: PkgCreator applies the same octal mode to every child,
+        # files and directories alike, which makes directories non-traversable or
+        # files executable. Per-path entries are the safe way to set a mode.
+        #
+        # Source: chown-entries.txt beside the blueprint.
+        #
+        # Note: path "Users" has group "admin" in the original BOM but
+        # "Users/Shared" below it is group "wheel". Because ownership rolls
+        # up (PkgCreator walks the tree), the entry for "Users/Shared" must
+        # be explicit to override the parent. Mode entries are per-path only:
+        # PkgCreator applies one octal mode to every child of a path entry,
+        # so rollup modes must match every file and directory underneath.
+        # 0777 for Shared and 0644 for files are safe defaults that git
+        # also carries correctly.
+        chown:
+          - path: Users
+            user: root
+            group: admin
+          - path: Users/Shared
+            user: root
+            group: wheel
+          - path: Users/Shared/QuarantineHelper
+            user: root
+            group: wheel
+          - path: Users/Shared/QuarantineHelper/helper.cfg
+            user: root
+            group: wheel
+          - path: Users/Shared/QuarantineHelper/banner.png
+            user: root
+            group: wheel

@@ -1,0 +1,8 @@
+Identifier: com.acmefruit.autopkg.download.ExactMatchApp
+MinimumVersion: "2.7"
+Input:
+  NAME: ExactMatchApp
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://example.com/download"

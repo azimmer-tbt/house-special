@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 7 — Faux Vendor DMG (in-house constructed DMG wrapping a vendor app)
+#
+# Use when the actual installer is a non-standard format (custom .app installer,
+# third-party installer tool, etc.) that has been captured via Jamf Composer
+# snapshot and wrapped into a DMG for recipe ingestion. The "faux vendor DMG"
+# contains the .app payload extracted from that Composer snapshot.
+#
+# The recipe chain:
+#   URLDownloader → Copier (mount) → Versioner
+#
+# (NO CodeSignatureVerifier — the DMG is in-house constructed and unsigned.)
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+#
+# DECISION POINTS
+#   1. VENDOR_CACHE_ROOT — confirm the path depth. The default assumes the
+#      corporate layout (build/vendor_cache/). If using init-recipe-repo.sh
+#      with --vendor-cache vendor_cache, adjust accordingly.
+#   2. DMG mounting — Copier mounts the DMG natively and extracts the .app.
+#      Use `hdiutil attach -nobrowse <DMG> && ls -R /Volumes/<volume>/`
+#      to verify the exact path structure before setting APP_FIND_PATTERN.
+#   3. NO_CODE_SIGNATURE_REQUIRED — this is the KEY difference from Pattern 4c.
+#      Do NOT silently omit CodeSignatureVerifier; declare it explicitly with
+#      NO_CODE_SIGNATURE_REQUIRED: true and a comment explaining WHY.
+#   4. APP_FIND_PATTERN — the path glob that matches the .app inside the DMG.
+#      Typically "Applications/REPLACE_APPNAME*/REPLACE_APPNAME*.app" since
+#      the DMG mirrors the Composer snapshot's payload structure.
+#   5. destination_path for Copier — hard-code the exact .app name (may include
+#      version suffix) since APP_FIND_PATTERN is a glob. Verify the actual name
+#      by mounting the DMG and checking the .app bundle name.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 7 faux vendor DMG — app extracted from in-house Composer snapshot. URLDownloader stages DMG from vendor_cache.
+Description: Stages, extracts, and versions REPLACE_APPNAME from a faux vendor DMG (in-house constructed).
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below repo
+  # root, so escaping to the root needs ../../../ — two dots lands you inside
+  # recipes/, not beside it.
+  #
+  # The segment after ../../../ depends on how the target repo is laid out:
+  #   build/vendor_cache/   the production-repo layout (reference/recipe-standards.md)
+  #   vendor_cache/         a local repo created with
+  #                         init-recipe-repo.sh --vendor-cache vendor_cache
+  # Match the repo you are writing into.
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../build/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/REPLACE_FILENAME"
+
+  # Explicit filename for URLDownloader's destination in RECIPE_CACHE_DIR
+  filename: "REPLACE_FILENAME"
+
+  # No CodeSignatureVerifier: the faux vendor DMG is an in-house constructed
+  # artifact (Composer snapshot wrapped in a DMG). The DMG wrapper is unsigned
+  # by design and the .app inside may carry a different team ID than what a
+  # direct vendor download would have. Trust boundary is Jamf MDM.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  # Exact .app bundle name as it appears inside the DMG (used by Copier).
+  # Use a glob pattern since the DMG inherits the Composer snapshot's
+  # payload structure (typically Applications/AppName*/AppName*.app).
+  APP_FIND_PATTERN: "REPLACE_APP_FIND_PATTERN"
+
+Process:
+  # 1. Stage the faux DMG from vendor_cache via URLDownloader (file:// URI).
+  #    Same processor works with https:// for remote blob stores.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # 2. Copier mounts the DMG natively and extracts the .app bundle.
+  #    Copier + APP_FIND_PATTERN handles the mount/extract in one step.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/%APP_FIND_PATTERN%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app"
+      overwrite: true
+
+  # 3. Read version from the extracted .app bundle's Info.plist
+  #    (NO CodeSignatureVerifier — see NO_CODE_SIGNATURE_REQUIRED above)
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/REPLACE_APPNAME.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: EndOfCheckPhase

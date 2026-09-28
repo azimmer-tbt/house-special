@@ -1,0 +1,115 @@
+{
+  "findings": [],
+  "pairs": {
+    "Orange-Data-Mining": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 21,
+          "processor": "URLDownloader",
+          "recipe": "Orange-Data-Mining.download.recipe.yaml",
+          "step": 1
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Orange-Data-Mining.download.recipe.yaml": "Pattern 3c \u2014 scraped direct URL. URLTextSearcher finds the versioned DMG link on the vendor's download page.",
+        "Orange-Data-Mining.pkg.recipe.yaml": "Pattern 3c \u2014 scraped direct URL DMG. Copier stages the app; PkgCreator builds the Acme_ package."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Orange-Data-Mining",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Orange-Data-Mining.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Orange-Data-Mining",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Orange-Data-Mining",
+          "file": "Orange-Data-Mining.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Orange-Data-Mining.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Applications/Orange.app"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Orange-Data-Mining.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "Acme_Orange-Data-Mining"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "requirement",
+          "line": 28,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Orange-Data-Mining.download.recipe.yaml",
+          "step": 3
+        },
+        "pins_team_id": true,
+        "value": "requirement"
+      },
+      "source": {
+        "evidence": {
+          "argument": "re_pattern",
+          "line": 16,
+          "processor": "URLTextSearcher",
+          "recipe": "Orange-Data-Mining.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "url_scraped"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 38,
+          "processor": "Versioner",
+          "recipe": "Orange-Data-Mining.download.recipe.yaml",
+          "step": 4
+        },
+        "processor": "Versioner",
+        "value": "processor"
+      }
+    }
+  }
+}

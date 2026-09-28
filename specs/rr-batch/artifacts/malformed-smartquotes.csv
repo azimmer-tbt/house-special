@@ -1,0 +1,5 @@
+# Malformed CSV with smart quotes — should be detected and rejected
+# Smart quotes are Unicode curly quotes, not straight ASCII quotes
+“https://example.com/app.dmg”,“MyApp”
+# Also try with single smart quotes
+‘https://example.com/other.dmg’,‘OtherApp’

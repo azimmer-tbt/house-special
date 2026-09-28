@@ -1,0 +1,21 @@
+# config/customers.example.yaml — an example customer registry
+# (specs/toolkit/02-customers.md).
+#
+# The tools read config/customers.yaml, which is yours and is never committed
+# upstream: it names your customers. Start it from this file:
+#
+#   cp config/customers.example.yaml config/customers.yaml
+#
+# A customer is an organisation with its own naming. Each name maps to the
+# customer's folder: relative to the kit root, absolute, or ~ (a client's own
+# private repo, for example). Each folder may carry org.yaml, paths.yaml,
+# checks.local.yaml and .leak-patterns; all optional.
+#
+# Select one with --customer <name> or $AUTOPKG_TOOLKIT_CUSTOMER; `default` is used
+# when nothing selects one. Without config/customers.yaml the kit works without
+# customers, and --customer <name> still finds customer/<name>/ in the kit.
+
+default: acme
+
+customers:
+  acme: customer/acme

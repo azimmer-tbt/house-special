@@ -1,0 +1,107 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6b — pkg recipe
+#
+# Rebuilds the package from the extracted payload and scripts. Four decisions
+# here have no equivalent in Pattern 4, and three of them fail silently when
+# wrong. See TEMPLATE.download.recipe.yaml for the full commentary; the key
+# points are summarised below.
+#
+# ── 1. PACKAGE IDENTIFIER — highest consequence ──────────────────────────────
+# PKG_ID MUST match the original package's identifier. macOS keys installer
+# receipts on it: match, and the rebuild upgrades the existing install; differ,
+# and it installs alongside, leaving two receipts claiming the same files.
+# Nothing errors. You find out later.
+#   Original:  pkgutil --pkg-info <identifier>
+#   From pkg:  pkgutil --expand <file>.pkg /tmp/x && \
+#              grep -o 'identifier="[^"]*"' /tmp/x/PackageInfo
+# pkg-reverse.sh reads this into blueprint.conf. If it could not, do not guess —
+# record what you chose and why in this app's README.
+#
+# ── 2. INSTALL LOCATION — silent when wrong ──────────────────────────────────
+# PkgCreator has NO install-location argument. The structure inside pkgroot IS
+# the install location. If the original declared install-location="/" its payload
+# is rooted at /, so the tree must start with Library/, Applications/, etc. If it
+# declared something else, the tree must be rooted to match.
+#   Original's file list:  pkgutil --files <identifier>
+# Compare that against `find payload -type f` before building. Mismatch here
+# installs everything to the wrong place with no error at build time.
+#
+# ── 3. SCRIPTS ───────────────────────────────────────────────────────────────
+# PkgCreator takes a scripts DIRECTORY and rejects the build if preinstall or
+# postinstall exist but are not executable. pkg-reverse.sh sets that bit and git
+# preserves it. Read the scripts before trusting them — extracted scripts often
+# reference paths, receipts, or versions that no longer hold.
+#
+# ── 4. OWNERSHIP ─────────────────────────────────────────────────────────────
+# PkgCreator's ditto runs as root and preserves on-disk ownership, so a payload
+# extracted under sudo needs NO chown block. A payload extracted without sudo is
+# owned by whoever ran the extractor, and ownership must be reconstructed from
+# the original's BOM. Extracting as root is strictly better; see the chown notes
+# below for when you cannot.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6b rebuilt package. PkgCreator with scripts + postinstall.
+Description: Rebuilds REPLACE_APPNAME from extracted payload and scripts with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+
+  # See decision 1. This is the original's identifier, NOT a new one.
+  PKG_ID: REPLACE_PKG_ID
+
+  # A rebuilt package has no upstream to detect versions from. This is pinned,
+  # and it must ALSO be declared here as an Input — %version% referenced without
+  # an Input declaration fails at runtime. Having it in .overrides does not
+  # count; AutoPkg never reads that file. See reference/methodology.md item #12.
+  version: "REPLACE_VERSION"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+
+        # Delete this line if the original package had no scripts, and delete
+        # the matching URLDownloader + Unarchiver pair in the download recipe.
+        scripts: "%RECIPE_CACHE_DIR%/scripts"
+
+        # ── chown: ONLY when the payload was extracted without sudo ──────────
+        #
+        # Ownership rolls up. PkgCreator walks the tree, so one entry owns
+        # everything beneath it — equivalent to chown -R. Emit one entry per
+        # directory whose owner differs from root:wheel, not one per file.
+        #
+        # Mode does NOT roll up. PkgCreator applies one octal mode to every
+        # child, files and directories alike, so a rollup mode of 0755 makes
+        # every file executable and 0644 makes every subdirectory untraversable.
+        # Only use mode on a rollup entry when the whole subtree genuinely shares
+        # one mode. Otherwise set modes per path.
+        #
+        # Git preserves the executable bit, so 0755/0644 survive a commit and
+        # need no entry. What needs an explicit mode is setuid, setgid, sticky,
+        # 0600, 0640, 0444 — anything git cannot carry.
+        #
+        # Source of truth is the original's BOM, never the extracted tree:
+        #   lsbom -p MUGsf /tmp/x/Bom
+        # pkg-reverse.sh writes bom.txt and chown-entries.txt beside the blueprint.
+        #
+        # chown:
+        #   - path: Library/Application Support/REPLACE_VENDORDIR
+        #     user: root
+        #     group: wheel
+        #   - path: Library/LaunchDaemons/REPLACE_PLIST
+        #     user: root
+        #     group: wheel
+        #     mode: "0644"
+
+# DO NOT add PkgCopier here. There is no vendor package to copy — that is the
+# whole premise of this pattern. PkgCreator builds the output from the payload.
+#
+# DO NOT add AppPkgCreator. It prevents control over the output filename, so the
+# Acme_ prefix cannot be applied. The linter rejects it as PKG-001 / PRO-001.

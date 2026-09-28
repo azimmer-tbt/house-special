@@ -1,0 +1,74 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6b — Rebuilt Package (Payload + Scripts)
+#
+# Defined in reference/recipe-standards.md §6.2.6. Pattern 6 is this kit's
+# addition to the common AutoPkg shapes — say "Pattern 6 (rebuilt package)" the
+# first time you use the term outside this repo.
+#
+# Use when an installed package exists but its source files do not — a legacy
+# in-house package with no build recipe, no pkgroot, and nobody left who has it.
+# You extract the built package into a payload tree and rebuild from that.
+#
+# Pattern 6b is the variant where the payload AND installer scripts are
+# distributed as separate archives (payload.zip + scripts.zip) that must be
+# downloaded and extracted independently.
+#
+# DO NOT use this on a vendor package you could ship as-is. Rebuilding discards
+# the original signature. If the input is signed by someone else, Pattern 4
+# Variant A (PkgCopier) is correct and this pattern is wrong.
+#
+# Generate the starting point rather than hand-writing it:
+#   sudo bin/pkg-reverse.sh <package.pkg> --dest <repo>/<vendor-cache>/<Vendor>
+#   bin/blueprint-to-recipe.sh --blueprint <...>/blueprint.conf --out <...>
+#
+# Use this template directly only when adapting an existing extraction by hand.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6b — Rebuilt package — payload extracted from an existing installer. Source files not available.
+  Uses URLDownloader + Unarchiver for universal payload and scripts archive handling.
+Description: Downloads and unpacks the QuarantineHelper payload and scripts archives.
+Identifier: com.acmefruit.autopkg.download.QuarantineHelper
+MinimumVersion: "2.3"
+
+Input:
+  NAME: QuarantineHelper
+  # Pinned: nothing in the source reports a version. Bump it with each new drop.
+  version: "1.0.0"
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  PAYLOAD_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/QuarantineHelper/payload.zip"
+  SCRIPTS_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/QuarantineHelper/scripts.zip"
+  filename: "QuarantineHelper-payload.zip"
+  scripts_filename: "QuarantineHelper-scripts.zip"
+
+  # No CodeSignatureVerifier: the payload was extracted from an unsigned
+  # in-house package. There is no signature left to verify.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  # 1. Download and extract the payload archive
+  - Processor: URLDownloader
+    Arguments:
+      url: "%PAYLOAD_URL%"
+      filename: "%filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  # 2. Download and extract the scripts archive
+  # Note: QuarantineHelper has no installer scripts, but the scripts.zip archive
+  # may be empty or absent. The URLDownloader + Unarchiver pair is retained
+  # for structural consistency with Pattern 6b.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%SCRIPTS_URL%"
+      filename: "%scripts_filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase

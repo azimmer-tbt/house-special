@@ -1,0 +1,37 @@
+Comment: Pattern 6b — config slice, payload + scripts. PkgCreator builds the per-user helper, its LaunchAgent and a postinstall that acts as the logged-in user. Install after Acme_Fruit-Screensaver.pkg.
+Description: Makes the Fruit screensaver each user's default, once, with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Fruit-Screensaver-Default
+ParentRecipe: com.acmefruit.autopkg.download.Fruit-Screensaver-Default
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruit-Screensaver-Default
+  PKG_ID: com.acmefruit.pkg.Fruit-Screensaver-Default
+
+Process:
+  # Stock macOS owners for the shared parents (docs/package-ownership.md), then
+  # our own paths. Owner only on parents — a mode would hit every descendant
+  # (methodology lesson 17).
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        scripts: "%RECIPE_DIR%/scripts"
+        chown:
+          - path: Library
+            user: root
+            group: wheel
+          - path: Library/Application Support
+            user: root
+            group: admin
+          - path: Library/Application Support/AcmeFruit
+            user: root
+            group: wheel
+          - path: Library/LaunchAgents/com.acmefruit.fruit-screensaver.plist
+            user: root
+            group: wheel
+            mode: "0644"

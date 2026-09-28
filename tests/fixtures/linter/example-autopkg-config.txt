@@ -1,0 +1,5 @@
+# Workflow metadata
+auto_rebuild: true
+promote_to: prod
+regions: [global]
+tf_name: microsoft_teams

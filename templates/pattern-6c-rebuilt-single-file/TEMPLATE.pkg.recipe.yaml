@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6c — pkg recipe (single file with specific mode)
+#
+# Rebuilds the package from the extracted single-file payload. Unlike Pattern
+# 6 (multi-file package), the chown block is almost always needed here because
+# the single file typically has a restrictive mode (0400, 0600, 0640) that git
+# cannot carry.
+#
+# ── 1. PACKAGE IDENTIFIER — highest consequence ──────────────────────────────
+# PKG_ID MUST match the original package's identifier. macOS keys installer
+# receipts on it: match, and the rebuild upgrades the existing install; differ,
+# and it installs alongside, leaving two receipts claiming the same files.
+# Nothing errors. You find out later.
+#   Original:  pkgutil --pkg-info <identifier>
+#   From pkg:  pkgutil --expand <file>.pkg /tmp/x && \
+#              grep -o 'identifier="[^"]*"' /tmp/x/PackageInfo
+#
+# ── 2. INSTALL LOCATION — silent when wrong ──────────────────────────────────
+# PkgCreator has NO install-location argument. The structure inside pkgroot IS
+# the install location. If the original declared install-location="/" its payload
+# is rooted at /, so the tree must start with Library/, Applications/, etc.
+# Single-file payloads typically deploy to a system path under /, so the archive
+# must contain the full path (e.g., private/etc/security/audit_control).
+#
+# ── 3. MODE — the critical difference from Pattern 6 ────────────────────────
+# Mode does NOT roll up. PkgCreator applies one octal mode to every child,
+# files and directories alike, so a rollup mode of 0755 makes every file
+# executable and 0644 makes every subdirectory untraversable.
+# For a single file with restrictive mode (0400), set mode per path in the
+# chown block. Source of truth is the original's BOM:
+#   lsbom -p MUGsf /tmp/x/Bom
+#
+# Git preserves the executable bit, so 0755/0644 survive a commit and need no
+# entry. What needs an explicit mode is setuid, setgid, sticky, 0600, 0640,
+# 0444, 0400 — anything git cannot carry.
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Rebuilds REPLACE_APPNAME from extracted payload with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+
+  # See decision 1. This is the original's identifier, NOT a new one.
+  PKG_ID: REPLACE_PKG_ID
+
+  # A rebuilt package has no upstream to detect versions from. This is pinned,
+  # and it must ALSO be declared here as an Input — %version% referenced without
+  # an Input declaration fails at runtime. Having it in .overrides does not
+  # count; AutoPkg never reads that file. See reference/methodology.md item #12.
+  version: "REPLACE_VERSION"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+        options: purge_dest
+
+        # ── chown: Restore ownership and mode from the original BOM ────────
+        #
+        # PkgCreator's ditto runs as root and preserves on-disk ownership, so
+        # a payload extracted under sudo would need NO chown block. But single-
+        # file payloads are typically stored in vendor_cache as a zip archive;
+        # the extraction happens at recipe run time under the running user, so
+        # ownership is always wrong and a chown block is required.
+        #
+        # Source of truth is the original's BOM, never the extracted tree:
+        #   lsbom -p MUGsf /tmp/x/Bom
+        chown:
+          - path: REPLACE_INSTALL_PATH
+            user: root
+            group: wheel
+            mode: "REPLACE_MODE"
+
+# DO NOT add PkgCopier here. There is no vendor package to copy — that is the
+# whole premise of this pattern. PkgCreator builds the output from the payload.
+#
+# DO NOT add AppPkgCreator. It prevents control over the output filename, so the
+# Acme_ prefix cannot be applied. The linter rejects it as PKG-001 / PRO-001.

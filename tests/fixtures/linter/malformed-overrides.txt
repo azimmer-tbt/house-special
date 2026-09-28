@@ -1,0 +1,10 @@
+# This file has deliberate syntax errors for parsing validation testing
+teamid=UBF8T346G9
+=emptykey
+malformedline
+teamid=UBF8T346G9
+duplicatekey=first
+duplicatekey=second
+key_with_empty_value=
+# Smart quotes below — uncomment to test:
+# teamid=“UBF8T346G9”

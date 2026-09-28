@@ -1,0 +1,32 @@
+# EXAMPLE — no real download. Orchard Labs is fictional; there is no license
+# file to stage. This is the SLICE that delivers the site license for
+# ../Orchard-Analytics (the app). Model: templates/pattern-6c-rebuilt-single-file/.
+Comment: Pattern 6c — license slice, one file. URLDownloader + Unarchiver stage the license payload from vendor_cache.
+Description: Stages the Orchard Analytics site license from vendor_cache.
+Identifier: com.acmefruit.autopkg.download.Orchard-Analytics-License
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orchard-Analytics-License
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  # payload.zip holds the tree exactly as it installs, zipped from inside:
+  #   Library/Application Support/Orchard Labs/license.lic   (methodology lesson 23)
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/OrchardLabs/Orchard-Analytics-License/payload.zip"
+  # A license file has no version of its own. Bump this when IT issues a new one.
+  version: "2026.1"
+  # A license file from IT, not a vendor binary: nothing to verify.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%NAME%-payload.zip"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true

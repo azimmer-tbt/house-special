@@ -1,0 +1,109 @@
+{
+  "findings": [],
+  "pairs": {
+    "Pomelo-Studio": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 51,
+          "processor": "URLDownloader",
+          "recipe": "Pomelo-Studio.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Pomelo-Studio.download.recipe.yaml": "Pattern 7 \u2014 Faux vendor DMG \u2014 app extracted from in-house snapshot. URLDownloader stages DMG from vendor_cache, Copier extracts the .app.",
+        "Pomelo-Studio.pkg.recipe.yaml": "Pattern 7 faux vendor DMG. PkgCreator with DMG-extracted .app."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Pomelo-Studio",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Pomelo-Studio.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Pomelo-Studio",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Pomelo-Studio",
+          "file": "Pomelo-Studio.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 33,
+          "processor": "PkgCreator",
+          "recipe": "Pomelo-Studio.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Applications/Pomelo Studio 4.app"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 33,
+          "processor": "PkgCreator",
+          "recipe": "Pomelo-Studio.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "Acme_Pomelo-Studio"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 51,
+          "processor": "URLDownloader",
+          "recipe": "Pomelo-Studio.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/PomeloSoftware/Pomelo-Studio/Pomelo-Studio.dmg",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 64,
+          "processor": "Versioner",
+          "recipe": "Pomelo-Studio.download.recipe.yaml",
+          "step": 2
+        },
+        "processor": "Versioner",
+        "value": "processor"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+Comment: Pattern 4b — vendor-drop distribution pkg, copied as-is with Copier (pkg recipe).
+Description: Copies the Xerox-Drivers vendor distribution package as-is (no org prefix).
+Identifier: com.acmefruit.autopkg.pkg.Xerox-Drivers
+ParentRecipe: com.acmefruit.autopkg.download.Xerox-Drivers
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Xerox-Drivers
+  PKG_ID: com.xerox.pkg.printdrivers
+
+Process:
+  # Copier, not PkgCopier: a bit-for-bit copy of the vendor's signed
+  # distribution package. No org prefix — it's the vendor's artifact.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/Xerox-Drivers.pkg"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%.pkg"
+      overwrite: true

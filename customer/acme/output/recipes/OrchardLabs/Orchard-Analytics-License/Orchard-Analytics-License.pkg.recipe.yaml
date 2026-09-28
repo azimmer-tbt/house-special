@@ -1,0 +1,37 @@
+# EXAMPLE — no real download (fictional vendor). See the download recipe.
+Comment: Pattern 6c — license slice, one file with an exact owner and mode. Installs after the app package; never touches it.
+Description: Packages the Orchard Analytics site license with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Orchard-Analytics-License
+ParentRecipe: com.acmefruit.autopkg.download.Orchard-Analytics-License
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orchard-Analytics-License
+  PKG_ID: com.acmefruit.pkg.Orchard-Analytics-License
+
+Process:
+  # Stock macOS owners for the shared parents (docs/package-ownership.md), then
+  # the license: readable by everyone, writable by no one. Take owner, group and
+  # mode from the vendor's instructions, not from memory (methodology lesson 17).
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        chown:
+          - path: Library
+            user: root
+            group: wheel
+          - path: Library/Application Support
+            user: root
+            group: admin
+          - path: "Library/Application Support/Orchard Labs"
+            user: root
+            group: wheel
+          - path: "Library/Application Support/Orchard Labs/license.lic"
+            user: root
+            group: wheel
+            mode: "0444"

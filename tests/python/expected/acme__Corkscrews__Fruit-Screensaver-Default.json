@@ -1,0 +1,150 @@
+{
+  "findings": [],
+  "pairs": {
+    "Fruit-Screensaver-Default": {
+      "artifact": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 19,
+          "processor": "Copier",
+          "recipe": "Fruit-Screensaver-Default.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "files"
+      },
+      "chown": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library/Application Support/AcmeFruit",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": "0644",
+          "path": "Library/LaunchAgents/com.acmefruit.fruit-screensaver.plist",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Fruit-Screensaver-Default.download.recipe.yaml": "Pattern 6b \u2014 config slice, payload + scripts. Copier stages the org-authored payload committed with the recipe.",
+        "Fruit-Screensaver-Default.pkg.recipe.yaml": "Pattern 6b \u2014 config slice, payload + scripts. PkgCreator builds the per-user helper, its LaunchAgent and a postinstall that acts as the logged-in user. Install after Acme_Fruit-Screensaver.pkg."
+      },
+      "extras": [
+        "Library/Application Support/AcmeFruit/FruitScreensaver/apply-screensaver.sh",
+        "Library/LaunchAgents/com.acmefruit.fruit-screensaver.plist"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Fruit-Screensaver-Default",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Fruit-Screensaver-Default.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Fruit-Screensaver-Default",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Fruit-Screensaver-Default",
+          "file": "Fruit-Screensaver-Default.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "Fruit-Screensaver-Default.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Library/Application Support/AcmeFruit",
+        "Library/Application Support/AcmeFruit/FruitScreensaver/apply-screensaver.sh",
+        "Library/LaunchAgents/com.acmefruit.fruit-screensaver.plist"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "Fruit-Screensaver-Default.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_Fruit-Screensaver-Default"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "directory": "%RECIPE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "Fruit-Screensaver-Default.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": [
+          "postinstall"
+        ],
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 19,
+          "processor": "Copier",
+          "recipe": "Fruit-Screensaver-Default.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "recipe_dir"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "Fruit-Screensaver-Default.download.recipe.yaml"
+        },
+        "pinned": "1.0.0",
+        "value": "input"
+      }
+    }
+  }
+}

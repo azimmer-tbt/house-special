@@ -1,0 +1,98 @@
+{
+  "findings": [],
+  "pairs": {
+    "UninstallAgent": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 26,
+          "processor": "URLDownloader",
+          "recipe": "UninstallAgent.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [],
+      "claimed": {
+        "UninstallAgent.download.recipe.yaml": "Pattern 6d rebuilt package \u2014 script-only, no payload.",
+        "UninstallAgent.pkg.recipe.yaml": "Pattern 6d \u2014 rebuilt package, payloadless (pkg recipe)."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.UninstallAgent",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "UninstallAgent.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.UninstallAgent",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.UninstallAgent",
+          "file": "UninstallAgent.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "UninstallAgent.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "UninstallAgent.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_UninstallAgent"
+      },
+      "pkgroot_parents": [],
+      "scripts": {
+        "directory": "%RECIPE_CACHE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "UninstallAgent.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": null,
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 26,
+          "processor": "URLDownloader",
+          "recipe": "UninstallAgent.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file://%RECIPE_DIR%/../../../vendor_cache/AcmeFruitCo/UninstallAgent/scripts.zip",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "UninstallAgent.pkg.recipe.yaml"
+        },
+        "pinned": "15.5",
+        "value": "input"
+      }
+    }
+  }
+}

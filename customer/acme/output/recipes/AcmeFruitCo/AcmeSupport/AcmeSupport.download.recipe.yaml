@@ -1,0 +1,44 @@
+# EXAMPLE — no real download. AcmeSupport is Acme Fruit Co.'s fictional in-house
+# help-desk helper; this recipe shows the Pattern 6b shape and passes lint, but
+# there is no payload.zip to stage. Model: templates/pattern-6b-rebuilt-payload-scripts/.
+Comment: Pattern 6b — rebuilt package, payload + scripts. Payload and scripts were extracted from the legacy in-house package with bin/pkg-reverse.sh.
+Description: Downloads and unpacks the AcmeSupport payload and scripts archives from vendor_cache.
+Identifier: com.acmefruit.autopkg.download.AcmeSupport
+MinimumVersion: "2.3"
+
+Input:
+  NAME: AcmeSupport
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  PAYLOAD_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/AcmeSupport/payload.zip"
+  SCRIPTS_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/AcmeSupport/scripts.zip"
+  # The rebuilt package carries the legacy version; nothing in the payload reports
+  # one, so it's pinned here. Bump it with each new drop.
+  version: "3.2.0"
+  # The legacy package was never signed, and the helper app inside it was built
+  # in-house without a Developer ID. Nothing to verify — see README.md.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%PAYLOAD_URL%"
+      filename: "%NAME%-payload.zip"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%SCRIPTS_URL%"
+      filename: "%NAME%-scripts.zip"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase

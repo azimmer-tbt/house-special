@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# postinstall — Fruta new-hire developer starter kit (Acme Fruit Co.)
+#
+# Runs as root.
+#   1. Builds Fruta-StarterKit.tar.gz from the installed project source.
+#   2. Delivers it to the Desktop of every existing local account, running the
+#      delivery script AS that user so the copy is theirs.
+# Accounts created later get it from the LaunchAgent at their first login.
+# Every step is idempotent: reinstalling rebuilds the tarball but does not
+# re-deliver to anyone who already has it.
+#
+# Author: Andrew Zimmer <andrew.zimmer@tigerbeetletechnology.com>
+# SPDX-License-Identifier: MIT
+
+set -u
+
+readonly KIT_DIR="/Library/Application Support/AcmeFruit/StarterKit"
+readonly KIT_TARBALL="${KIT_DIR}/Fruta-StarterKit.tar.gz"
+readonly DELIVER="${KIT_DIR}/deliver-starter-kit.sh"
+
+# $3 is the target volume; only act on the running system.
+if [[ "${3:-/}" != "/" ]]; then
+    exit 0
+fi
+
+# 1. Build the tarball (atomically, so a half-written file is never delivered).
+if [[ ! -d "${KIT_DIR}/Fruta" ]]; then
+    echo "postinstall: ${KIT_DIR}/Fruta missing" >&2
+    exit 1
+fi
+tmp="${KIT_TARBALL}.tmp.$$"
+if ! /usr/bin/tar -czf "${tmp}" -C "${KIT_DIR}" Fruta; then
+    /bin/rm -f "${tmp}"
+    echo "postinstall: failed to build ${KIT_TARBALL}" >&2
+    exit 1
+fi
+/bin/chmod 644 "${tmp}" && /bin/mv -f "${tmp}" "${KIT_TARBALL}" || exit 1
+
+# 2. Deliver to existing local accounts: UID >= 501 with a real home directory.
+/usr/bin/dscl . -list /Users UniqueID | while read -r user uid; do
+    [[ "${uid}" =~ ^[0-9]+$ ]] || continue
+    [[ "${uid}" -ge 501 ]] || continue
+    home="$(/usr/bin/dscl . -read "/Users/${user}" NFSHomeDirectory 2>/dev/null \
+        | /usr/bin/awk '{print $2}')"
+    [[ -n "${home}" && -d "${home}" ]] || continue
+    # HOME must point at the user's home; sudo -H sets it from the directory record.
+    if ! /usr/bin/sudo -H -u "${user}" "${DELIVER}"; then
+        echo "postinstall: delivery to ${user} failed; LaunchAgent retries at login"
+    fi
+done
+exit 0

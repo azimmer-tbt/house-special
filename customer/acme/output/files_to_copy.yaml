@@ -1,0 +1,18 @@
+# files_to_copy.yaml — vendor cache manifest for Acme Fruit Co.
+#
+# bin/sync-vendor-cache.sh <this file> <durable-source> <VENDOR_CACHE_ROOT> copies
+# only these paths (relative to the vendor cache root; absolute paths and ".." are
+# refused). Directories copy recursively. Timestamps are kept, so unchanged files
+# are skipped next time; --dry-run lists what would be copied. Keep originals in a durable location — the default
+# VENDOR_CACHE_ROOT (/tmp/autopkg/vendor_cache) is cleared at reboot
+# (methodology lesson 24).
+
+files:
+  - "HP/HP-Printer-Drivers/HP-Printer-Drivers.pkg"
+  - "OrchardLabs/Orchard-Analytics/Orchard-Analytics.dmg"
+  - "OrchardLabs/Orchard-Analytics-License/payload.zip"
+  - "AcmeFruitCo/AcmeSupport/payload.zip"
+  - "AcmeFruitCo/AcmeSupport/scripts.zip"
+  - "AcmeFruitCo/Acme-Wallpaper/payload.zip"
+  - "AcmeFruitCo/Acme-UninstallAgent/scripts.zip"
+  - "PomeloSoftware/Pomelo-Studio/Pomelo-Studio.dmg"

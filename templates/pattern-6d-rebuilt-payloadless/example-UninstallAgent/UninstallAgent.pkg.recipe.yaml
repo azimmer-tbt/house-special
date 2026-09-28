@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6d — pkg recipe (script-only, no payload)
+#
+# Builds a script-only package: the postinstall script handles the uninstall
+# logic. No payload files are staged — the pkgroot is effectively empty.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6d — rebuilt package, payloadless (pkg recipe).
+Description: Builds UninstallAgent script-only package with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.UninstallAgent
+ParentRecipe: com.acmefruit.autopkg.download.UninstallAgent
+MinimumVersion: "2.3"
+
+Input:
+  NAME: UninstallAgent
+  PKG_ID: com.acmefruit.uninstallagent
+  version: "15.5"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+        scripts: "%RECIPE_CACHE_DIR%/scripts"

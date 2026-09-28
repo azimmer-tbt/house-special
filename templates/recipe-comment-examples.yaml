@@ -1,0 +1,186 @@
+# Recipe Comment Examples
+#
+# Reference file showing Comment: values and inline # comment patterns
+# for each recipe pattern. Use these when writing new recipes or
+# updating existing ones.
+#
+# Each block shows the Comment: line and inline comments for the
+# Process section. Adjust the wording to match your specific app.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4b — Vendor-Drop PKG (Copier, distribution package)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 4 vendor-drop pkg. URLDownloader with file:// URI for vendor_cache staging.
+# Process:
+#   # Stage the vendor pkg from vendor_cache using URLDownloader (universal input).
+#   - Processor: URLDownloader
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 4 vendor-drop pkg. Copier bit-for-bit copy (distribution package — PkgCopier cannot handle).
+# Process:
+#   # Copier instead of PkgCopier: distribution package, PkgCopier cannot handle.
+#   # URLDownloader saves to downloads/ subdirectory.
+#   - Processor: Copier
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4a — Vendor-Drop PKG (Copier, simple flat pkg)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Pkg recipe:
+# Comment: Pattern 4 vendor-drop pkg. Copier bit-for-bit copy.
+# Process:
+#   - Processor: Copier
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4c — Vendor-Drop DMG (Copier + PkgCreator)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 4 (DMG source). URLDownloader stages DMG from vendor_cache, Copier mounts DMG natively for app extraction.
+# Process:
+#   # Stage the DMG from vendor_cache using URLDownloader (universal input).
+#   - Processor: URLDownloader
+#   # Copier mounts the DMG natively and extracts the .app.
+#   - Processor: Copier
+#   # Verify code signature
+#   - Processor: CodeSignatureVerifier
+#   # Read version from the .app bundle
+#   - Processor: Versioner
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 4 (DMG source). PkgCreator with chown block.
+# Process:
+#   # Read version from the .app bundle
+#   - Processor: Versioner
+#   # Build the org-prefixed package
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4d — Vendor-Drop DMG + Ridealong Scripts/Payload
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 4 (DMG source). URLDownloader stages DMG + scripts + payload from vendor_cache.
+# Process:
+#   # Stage the DMG from vendor_cache
+#   - Processor: URLDownloader
+#   # Stage scripts alongside for the pkg recipe
+#   - Processor: Copier
+#   # Stage org-specific payload files (license keys, etc.) under pkgroot
+#   - Processor: Copier
+#   # Copier mounts DMG and extracts the .app
+#   - Processor: Copier
+#   # Verify vendor code signature
+#   - Processor: CodeSignatureVerifier
+#   # Read version from the .app
+#   - Processor: Versioner
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 4 (DMG source). PkgCreator with scripts + license injection.
+# Process:
+#   # Build the org-prefixed package with scripts and ownership
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 5 — Distribution Package (Copier)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 5 distribution package. URLDownloader with file:// URI for vendor_cache staging.
+# Process:
+#   - Processor: URLDownloader
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 5 distribution package. Copier bit-for-bit copy (FlatPkgUnpacker cannot handle distribution packages).
+# Process:
+#   # Copier instead of PkgCopier: distribution package, PkgCopier cannot handle.
+#   - Processor: Copier
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6a — Rebuilt, Flat Payload (No Scripts)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 6a rebuilt package — payload extracted from existing installer. URLDownloader + Unarchiver for payload archive.
+# Process:
+#   # Download the payload archive via URLDownloader
+#   - Processor: URLDownloader
+#   # Extract to payload/ to match pkgroot in pkg recipe
+#   - Processor: Unarchiver
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 6a rebuilt package. PkgCreator with chown block.
+# Process:
+#   # Rebuild the org-prefixed package from extracted payload
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6b — Rebuilt, Payload + Scripts
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 6b rebuilt package — payload+scripts extracted from existing installer. URLDownloader + Unarchiver for payload and scripts archives.
+# Process:
+#   # 1. Download and extract the payload archive
+#   - Processor: URLDownloader
+#   - Processor: Unarchiver
+#   # 2. Download and extract the scripts archive
+#   - Processor: URLDownloader
+#   - Processor: Unarchiver
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 6b rebuilt package. PkgCreator with scripts + postinstall.
+# Process:
+#   # Rebuild with payload, postinstall script, and restored ownership
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6c — Rebuilt, Single File with Specific Mode
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Pkg recipe:
+# Comment: Pattern 6c rebuilt package. PkgCreator restoring 0400 ownership on single file.
+# Process:
+#   # Rebuild with explicit chown block for mode 0400
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6d — Rebuilt, Payloadless (Script-Only)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Pkg recipe:
+# Comment: Pattern 6d rebuilt package. PkgCreator with scripts only (no payload).
+# Process:
+#   # Deploy script-only package with no payload files
+#   - Processor: PkgCreator
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 7 — Faux Vendor DMG
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Download recipe:
+# Comment: Pattern 7 faux vendor DMG — app extracted from in-house Composer snapshot. URLDownloader stages DMG from vendor_cache.
+# Process:
+#   # Stage the faux DMG from vendor_cache
+#   - Processor: URLDownloader
+#   # Copier mounts DMG and extracts the .app
+#   - Processor: Copier
+#   # Read version from the extracted .app
+#   - Processor: Versioner
+#   - Processor: EndOfCheckPhase
+
+# Pkg recipe:
+# Comment: Pattern 7 faux vendor DMG. PkgCreator with DMG-extracted .app.
+# Process:
+#   # Read version from the .app bundle
+#   - Processor: Versioner
+#   # Build the org-prefixed package
+#   - Processor: PkgCreator

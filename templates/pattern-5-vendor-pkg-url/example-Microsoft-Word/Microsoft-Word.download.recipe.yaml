@@ -1,0 +1,24 @@
+Comment: Pattern 5 — Vendor PKG download recipe (stable fwlink redirect URL).
+Description: Downloads the latest version of Microsoft Word.
+Identifier: com.acmefruit.autopkg.download.Microsoft-Word
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Microsoft-Word
+  APP_FILENAME: Microsoft Word
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "https://go.microsoft.com/fwlink/?linkid=525134"
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Microsoft Corporation (UBF8T346G9)"
+        - Developer ID Certification Authority
+        - Apple Root CA

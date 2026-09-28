@@ -1,0 +1,32 @@
+Comment: Pattern 2a — GitHub release, signed vendor pkg copied as-is. GitHubReleasesInfoProvider + URLDownloader; the pkg's signature is verified by certificate chain.
+Description: Downloads the latest Dockutil installer package (edits the Dock) from GitHub releases.
+Identifier: com.acmefruit.autopkg.download.Dockutil
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Dockutil
+  GITHUB_REPO: kcrawford/dockutil
+  ASSET_REGEX: "^dockutil-[\\d.]+\\.pkg$"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: "%ASSET_REGEX%"
+      include_prereleases: false
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  # A flat .pkg is verified with pkgutil's certificate chain, copied verbatim from
+  # `pkgutil --check-signature` (methodology lessons 5 and 6).
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Kyle Crawford (Z5J8CJBUWC)"
+        - Developer ID Certification Authority
+        - Apple Root CA

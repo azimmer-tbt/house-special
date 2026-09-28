@@ -1,0 +1,30 @@
+Comment: Pattern 3c — scraped direct URL DMG. Copier stages the app; PkgCreator builds the Acme_ package.
+Description: Packages Orange Data Mining with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Orange-Data-Mining
+ParentRecipe: com.acmefruit.autopkg.download.Orange-Data-Mining
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Orange-Data-Mining
+  PKG_ID: com.acmefruit.pkg.Orange-Data-Mining
+
+Process:
+  # Copier mounts the DMG, copies the app out, and unmounts in one step.
+  - Processor: Copier
+    Arguments:
+      source_path: "%pathname%/Orange.app"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Orange.app"
+      overwrite: true
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/%NAME%"
+        chown:
+          - path: Applications
+            user: root
+            group: admin

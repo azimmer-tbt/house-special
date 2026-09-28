@@ -1,0 +1,28 @@
+# customer/acme/paths.yaml — where Acme's material lives.
+#
+# Relative paths are relative to this folder (customer/acme/). recipe_repo.root is
+# read by the tools (specs/toolkit/02-customers.md FR-03); the other keys are for
+# people and agent skills. Schema: docs/FORMATS.md §5.
+
+customer_name: "acme"
+
+# The recipe repo for this customer: output/ has recipes/ in it, so
+# `recipe-linter.sh --customer acme` lints customer/acme/output.
+recipe_repo:
+  root: output
+  recipes: output/recipes
+  build: output/build                  # gitignored
+  vendor_cache: output/vendor_cache    # gitignored; see files_to_copy.yaml
+
+# Raw vendor material as received (installers, emails, screenshots of download pages).
+input: input                      # gitignored except README.md
+
+# Per-package plan-of-attack documents (specs/method/00-methodology.md step 3).
+plans: plans
+
+# Session logs and troubleshooting drop point (both gitignored except README.md).
+sessions: sessions
+troubleshooting: troubleshooting
+
+# Where AutoPkg stages vendor-drop files at run time (-k VENDOR_CACHE_ROOT=...).
+vendor_cache_root: /tmp/autopkg/vendor_cache

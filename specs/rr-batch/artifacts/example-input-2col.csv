@@ -1,0 +1,7 @@
+# Example 4-column input CSV for rr-batch.sh
+# Format: "Status","Vendor","AppName","URL"
+# Status values: TEST, DONE, SKIP, blank (always process)
+"TEST","microsoft","Microsoft Teams","https://office.com/download/teams.dmg"
+"DONE","microsoft","Microsoft Edge","https://office.com/download/edge.dmg"
+"","slack","Slack","https://slack.com/downloads/mac"
+"SKIP","adobe","Adobe Reader","https://adobe.com/reader.dmg"

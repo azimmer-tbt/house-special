@@ -1,0 +1,11 @@
+=== capture-perms.sh ===
+  Target:       /path/to/perms
+  Files:        1
+  Directories:  2
+  Symlinks:     0
+
+  Path | Type | Mode | UID:GID | Owner:Group | Size | SymlinkTarget
+  ---- | ---- | ---- | ------- | ----------- | ---- | ------------
+/path/to/perms/Library directory 755 501 0 you wheel 96 
+/path/to/perms/Library/LaunchAgents directory 755 501 0 you wheel 96 
+/path/to/perms/Library/LaunchAgents/com.acmefruit.fruit-screensaver.plist file 644 501 0 you wheel 489 

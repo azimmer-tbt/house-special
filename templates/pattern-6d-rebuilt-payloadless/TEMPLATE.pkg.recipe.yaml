@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6d — pkg recipe (script-only, no payload)
+#
+# Builds a package with installer scripts but NO payload files. The pkgroot
+# is effectively empty; the package's function is delivered entirely by the
+# preinstall and/or postinstall scripts.
+#
+# Common use cases:
+# - Uninstaller packages (scripts remove an existing application)
+# - LaunchAgent/LaunchDaemon deployment with no supporting files
+# - Wrapper scripts that call other tools already present on the system
+# - Trigger packages that set a flag or touch a sentinel file
+#
+# ── 1. PACKAGE IDENTIFIER ───────────────────────────────────────────────────
+# PKG_ID MUST match the original package's identifier. macOS keys installer
+# receipts on it: match, and the rebuild upgrades the existing install; differ,
+# and it installs alongside, leaving two receipts claiming the same files.
+# Nothing errors. You find out later.
+#   Original:  pkgutil --pkg-info <identifier>
+#   From pkg:  pkgutil --expand <file>.pkg /tmp/x && \
+#              grep -o 'identifier="[^"]*"' /tmp/x/PackageInfo
+#
+# ── 2. NO PKGROOT ──────────────────────────────────────────────────────────
+# PkgCreator accepts an empty or absent pkgroot for script-only packages.
+# The pkgroot is set to a temporary directory at build time — no payload
+# files are staged. The package contains only the script installer items.
+#
+# ── 3. SCRIPTS ─────────────────────────────────────────────────────────────
+# PkgCreator takes a scripts DIRECTORY and rejects the build if preinstall or
+# postinstall exist but are not executable. Ensure the executable bit is set
+# in the archive. Verify the scripts reference correct paths, as extracted
+# scripts often reference stale locations or versions.
+#
+# The scripts directory may contain:
+# - preinstall — runs before any payload (there is none)
+# - postinstall — runs after "payload" installation (no-op)
+# Both are optional; include only what the original package used.
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Builds REPLACE_APPNAME script-only package with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+
+  # See decision 1. This is the original's identifier, NOT a new one.
+  PKG_ID: REPLACE_PKG_ID
+
+  # A rebuilt package has no upstream to detect versions from. This is pinned,
+  # and it must ALSO be declared here as an Input — %version% referenced without
+  # an Input declaration fails at runtime. Having it in .overrides does not
+  # count; AutoPkg never reads that file. See reference/methodology.md item #12.
+  version: "REPLACE_VERSION"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        # No pkgroot — this is a script-only package with no payload files.
+        # PkgCreator accepts an empty pkgroot path for script-only builds.
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+
+        # The scripts directory contains preinstall/postinstall scripts that
+        # define the package's entire function. These are staged by the download
+        # recipe's Unarchiver step into RECIPE_CACHE_DIR/scripts.
+        scripts: "%RECIPE_CACHE_DIR%/scripts"
+
+# DO NOT add PkgCopier here. There is no vendor package to copy — that is the
+# whole premise of this pattern. PkgCreator builds the output from the scripts.
+#
+# DO NOT add AppPkgCreator. It prevents control over the output filename, so the
+# Acme_ prefix cannot be applied. The linter rejects it as PKG-001 / PRO-001.

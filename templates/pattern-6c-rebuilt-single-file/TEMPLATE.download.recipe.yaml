@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6c — Rebuilt, Single File (reverse-engineered)
+#
+# Defined in reference/recipe-standards.md §6.2.6 (Pattern 6 variants).
+# Pattern 6c is a variant of Pattern 6 for single-file payloads with specific
+# ownership/mode.
+#
+# Use when the built package contains a single file that needs explicit mode
+# (e.g., 0400, 0600, 0640) — typically a configuration file deployed to a
+# system path. Unlike Pattern 6 (multi-file package), there is no payload tree
+# to dismantle; the source is a single archive (payload.zip) stored in the
+# vendor cache.
+#
+# Recipe chain: URLDownloader + Unarchiver -> PkgCreator with chown block.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6c rebuilt package — payload extracted from existing installer.
+Description: Downloads and unpacks the REPLACE_APPNAME payload archive.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Version: add the same pinned version Input here as in the pkg recipe
+  # (for example version: "1.2.3"). Lint rule VER-001 looks for it in the
+  # download recipe. Pin it in Input, not in .overrides: AutoPkg never reads
+  # .overrides.
+
+  # A rebuilt package carries no signature — the original's was discarded when
+  # it was dismantled. This is not an omission to be silently tolerated; declare
+  # it, and say what the trust boundary actually is.
+  # Confirm the original's status first (never `codesign` on a .pkg):
+  #   pkgutil --check-signature <original>.pkg
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  # The payload archive is stored in the vendor cache under the vendor directory.
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below the repo
+  # root. The segment after ../../../ depends on the target repo's layout.
+  VENDOR_CACHE_ROOT: "%RECIPE_DIR%/../../../REPLACE_VENDORCACHE"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDORDIR/REPLACE_APPNAME/payload.zip"
+  filename: "REPLACE_APPNAME-payload.zip"
+
+Process:
+  # Download the payload archive from the vendor cache.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # Unarchive the payload into the recipe cache. purge_destination ensures a
+  # clean slate on each run — critical because a single-file payload contains
+  # a path structure (e.g., private/etc/security/audit_control) that must not
+  # accumulate stale files from a previous extraction.
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase
+
+# NO CodeSignatureVerifier here. There is nothing to verify: the artifact is
+# assembled locally from a payload archive. Declaring NO_CODE_SIGNATURE_REQUIRED
+# above with a reason is the correct handling — silently omitting the verifier
+# is not, because the next reader cannot tell an unsigned artifact from a
+# forgotten step.

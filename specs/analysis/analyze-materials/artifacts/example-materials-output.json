@@ -1,0 +1,266 @@
+{
+  "source_dir": "/path/to/vendor-share",
+  "files_found": 3,
+  "files": [
+    {
+      "path": "/path/to/vendor-share/Corkscrews/Fruit-Screensaver/Fruit.saver.tar.gz",
+      "basename": "Fruit.saver.tar.gz",
+      "extension": "tar.gz",
+      "size": 108302,
+      "modified": 1790473465,
+      "vendor_hint": "Corkscrews",
+      "classifiable": false
+    },
+    {
+      "path": "/path/to/vendor-share/MoonlightGameStreaming/Moonlight/Moonlight-6.1.0.dmg",
+      "basename": "Moonlight-6.1.0.dmg",
+      "extension": "dmg",
+      "size": 59806624,
+      "modified": 1790473465,
+      "vendor_hint": "MoonlightGameStreaming",
+      "classifiable": false
+    },
+    {
+      "path": "/path/to/vendor-share/OrchardLabs/Orchard-Analytics/Orchard Analytics 7.2.dmg",
+      "basename": "Orchard Analytics 7.2.dmg",
+      "extension": "dmg",
+      "size": 0,
+      "modified": 1790473465,
+      "vendor_hint": "OrchardLabs",
+      "classifiable": false
+    }
+  ],
+  "target_matches": [
+    {
+      "target_app": "Moonlight",
+      "target_vendor": "MoonlightGameStreaming",
+      "pattern": "2b",
+      "candidates": [
+        {
+          "path": "/path/to/vendor-share/MoonlightGameStreaming/Moonlight/Moonlight-6.1.0.dmg",
+          "size": 59806624,
+          "match_signals": [
+            "app_name_match",
+            "vendor_match",
+            "version_in_filename",
+            "archivable_file"
+          ],
+          "match_strength": "strong"
+        }
+      ],
+      "candidate_count": 1
+    },
+    {
+      "target_app": "Raspberry-Pi-Imager",
+      "target_vendor": "RaspberryPi",
+      "pattern": "2b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Pearcleaner",
+      "target_vendor": "Alienator88",
+      "pattern": "2b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Orange-Data-Mining",
+      "target_vendor": "Biolab",
+      "pattern": "3c",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Fruit-Screensaver",
+      "target_vendor": "Corkscrews",
+      "pattern": "2b",
+      "candidates": [
+        {
+          "path": "/path/to/vendor-share/Corkscrews/Fruit-Screensaver/Fruit.saver.tar.gz",
+          "size": 108302,
+          "match_signals": [
+            "vendor_match",
+            "archivable_file"
+          ],
+          "match_strength": "moderate"
+        }
+      ],
+      "candidate_count": 1
+    },
+    {
+      "target_app": "Fruit-Screensaver-Default",
+      "target_vendor": "Corkscrews",
+      "pattern": "6b",
+      "candidates": [
+        {
+          "path": "/path/to/vendor-share/Corkscrews/Fruit-Screensaver/Fruit.saver.tar.gz",
+          "size": 108302,
+          "match_signals": [
+            "vendor_match",
+            "archivable_file"
+          ],
+          "match_strength": "moderate"
+        }
+      ],
+      "candidate_count": 1
+    },
+    {
+      "target_app": "Fruta-Starter-Kit",
+      "target_vendor": "AcmeFruitCo",
+      "pattern": "2d",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Firefox",
+      "target_vendor": "Mozilla",
+      "pattern": "3b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Google-Chrome",
+      "target_vendor": "Google",
+      "pattern": "3b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Microsoft-Word",
+      "target_vendor": "Microsoft",
+      "pattern": "5",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "HP-Printer-Drivers",
+      "target_vendor": "HP",
+      "pattern": "4b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Orchard-Analytics",
+      "target_vendor": "OrchardLabs",
+      "pattern": "4c",
+      "candidates": [
+        {
+          "path": "/path/to/vendor-share/OrchardLabs/Orchard-Analytics/Orchard Analytics 7.2.dmg",
+          "size": 0,
+          "match_signals": [
+            "app_name_match",
+            "vendor_match",
+            "version_in_filename",
+            "archivable_file"
+          ],
+          "match_strength": "strong"
+        }
+      ],
+      "candidate_count": 1
+    },
+    {
+      "target_app": "Orchard-Analytics-License",
+      "target_vendor": "OrchardLabs",
+      "pattern": "6c",
+      "candidates": [
+        {
+          "path": "/path/to/vendor-share/OrchardLabs/Orchard-Analytics/Orchard Analytics 7.2.dmg",
+          "size": 0,
+          "match_signals": [
+            "vendor_match",
+            "version_in_filename",
+            "archivable_file"
+          ],
+          "match_strength": "moderate"
+        }
+      ],
+      "candidate_count": 1
+    },
+    {
+      "target_app": "AcmeSupport",
+      "target_vendor": "AcmeFruitCo",
+      "pattern": "6b",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Acme-Wallpaper",
+      "target_vendor": "AcmeFruitCo",
+      "pattern": "6c",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Acme-UninstallAgent",
+      "target_vendor": "AcmeFruitCo",
+      "pattern": "6d",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Pomelo-Studio",
+      "target_vendor": "PomeloSoftware",
+      "pattern": "7",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Default-Browser",
+      "target_vendor": "MacAdmins",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Outset",
+      "target_vendor": "MacAdmins",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Nudge",
+      "target_vendor": "MacAdmins",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "IconGrabber",
+      "target_vendor": "MacAdmins",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "SwiftDialog",
+      "target_vendor": "SwiftDialog",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Desktoppr",
+      "target_vendor": "ScriptingOSX",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    },
+    {
+      "target_app": "Dockutil",
+      "target_vendor": "KCrawford",
+      "pattern": "2a",
+      "candidates": [],
+      "candidate_count": 0
+    }
+  ],
+  "summary": {
+    "total_targets": 24,
+    "targets_with_candidates": 5,
+    "targets_without_candidates": 19,
+    "unmatched_source_files": 0
+  },
+  "unmatched": 0,
+  "unmatched_files": []
+}

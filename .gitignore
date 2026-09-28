@@ -1,0 +1,58 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+bin/venv/
+
+# Build output (bin/make-dist.sh)
+dist/
+
+# Scratch
+temp/
+*.bak
+.shellspec-quick.log
+
+# Local leak denylist for bin/check-sanitized.sh — never committed, so the
+# denylist itself can't leak the names it guards against.
+.leak-patterns
+
+# The customer registry names your customers, so each checkout keeps its own.
+# Upstream ships config/customers.example.yaml; a private fork may `git add -f` it.
+config/customers.yaml
+
+# The AutoPkg wiki: each user clones it here (README, Getting ready). Its content
+# belongs to the AutoPkg project, so the kit doesn't redistribute it.
+reference/autopkg-wiki/
+
+# Installers and vendor binaries never belong in git
+*.pkg
+*.mpkg
+*.dmg
+*.pkg.zip
+*.tar.gz
+
+# Customer workspaces — track the human-authored content (recipes, plans,
+# CSVs, YAML), not the bulky binaries or drop points.
+customer/*/input/*
+customer/*/troubleshooting/*
+customer/*/sessions/*
+!customer/*/input/README.md
+!customer/*/troubleshooting/README.md
+!customer/*/sessions/README.md
+!customer/*/*/.gitkeep
+customer/**/build/
+customer/**/vendor_cache/
+customer/**/reverse_engineer/
+customer/**/prod_content/
+customer/**/recipes/**/autopkg-run-*.log
+
+# Test fixtures deliberately contain *.pkg / *.tar.gz shaped directories and files
+!tests/fixtures/**

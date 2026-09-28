@@ -1,0 +1,79 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4a — pkg recipe (standard vendor .pkg, PkgCopier-safe)
+#
+# This is Pattern 4a. Use PkgCopier (works only with flat packages).
+# If the vendor provides a distribution-format .pkg, use Pattern 4b instead
+# (Copier-based — Copier does not crash on distribution format).
+#
+# Two variants. Pick by what the vendor gave you:
+#
+#   VARIANT A (below, active) — the vendor gave you a .pkg. Copy it as-is with
+#     PkgCopier. You are NOT rebuilding the package; the vendor's pkg is the
+#     output.
+#
+#   VARIANT C (commented, bottom) — the vendor gave you loose files that must be
+#     assembled into a package. Use Copier + PkgCreator.
+#
+# DO NOT reference %pathname% in this recipe. URLDownloader sets %pathname%;
+# Copier does NOT. A Pattern 4 parent uses Copier, so %pathname% is unset and
+# the step fails at runtime with no static warning. Reference the literal cache
+# path instead — %RECIPE_CACHE_DIR% IS shared across the parent→child boundary,
+# so it reliably points at what the parent's Copier wrote.
+# See reference/methodology.md items #3 and #4.
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Repackages REPLACE_APPNAME with Acme naming convention (vendor pkg, copied as-is).
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Vendor's own package identifier. Read it from the real pkg rather than
+  # guessing:  pkgutil --expand <file>.pkg /tmp/x && grep -o 'identifier="[^"]*"' /tmp/x/Distribution
+  # If you cannot confirm it, invent one AND say so in this app's README.md.
+  PKG_ID: REPLACE_PKG_ID
+
+Process:
+  # ── VARIANT A: vendor gave us a .pkg — copy it as-is ──────────────────────
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%RECIPE_CACHE_DIR%/REPLACE_APPNAME.pkg"
+      pkg_path: "%RECIPE_CACHE_DIR%/%NAME%.pkg"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VARIANT C: vendor gave us loose files to assemble
+#
+# Replace the PkgCopier step above with the two steps below, and change the
+# parent recipe's Copier to use LOCAL_DIR_PATH with `overwrite: true`.
+#
+# Stage build/vendor_cache/ so it ALREADY mirrors the exact final structure, and
+# copy the whole directory in one call. Copier does not create missing parent
+# directories when copying a single file into a nested destination, but it does
+# create the full tree when copying a directory. One directory-level call beats
+# one call per file. See reference/methodology.md item #13.
+#
+#   - Processor: Copier
+#     Arguments:
+#       source_path: "%RECIPE_CACHE_DIR%/REPLACE_APPNAME"
+#       destination_path: "%RECIPE_CACHE_DIR%/payload"
+#       overwrite: true
+#
+#   - Processor: PkgCreator
+#     Arguments:
+#       pkg_request:
+#         pkgname: "Acme_%NAME%"
+#         pkgdir: "%RECIPE_CACHE_DIR%"
+#         id: "%PKG_ID%"
+#         version: "%version%"
+#         options: purge_dest
+#         chown:
+#           - path: Library
+#             user: root
+#             group: wheel
+#
+# If you use %version% above, it MUST have a real Input: declaration somewhere
+# in the download+pkg chain. Having it in .overrides does NOT count — .overrides
+# is an optional harness file and AutoPkg never reads it automatically.
+# This gap only bites Variant C (Variant A never references %version%) and only
+# at runtime. See reference/methodology.md item #12.
+# ─────────────────────────────────────────────────────────────────────────────

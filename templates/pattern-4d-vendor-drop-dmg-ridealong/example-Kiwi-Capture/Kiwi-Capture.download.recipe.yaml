@@ -1,0 +1,82 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4d — Vendor-Provided DMG with Ridealong Scripts/Payload
+#
+# The DMG is staged in the repo under vendor_cache/ and downloaded into the
+# AutoPkg cache via URLDownloader using a file:// URI. The ridealong files
+# (postinstall scripts, license keys) are staged via Copier from the same
+# vendor_cache location.
+#
+# Recipe chain:
+#   URLDownloader (DMG) → Copier (scripts) → Copier (payload) → Copier (DMG mount + .app extract) → CodeSignatureVerifier → Versioner
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 4d — Vendor-drop recipe (DMG) — URLDownloader stages DMG from vendor_cache,
+  Copier mounts DMG natively for app extraction. Pattern Kiwi Capture*.app handles any
+  version-year bundle name. Stages org scripts and license key alongside.
+Description: Stages, mounts, extracts, and verifies the KiwiSoft Kiwi Capture DMG.
+  Also stages org-specific postinstall script and license key file.
+Identifier: com.acmefruit.autopkg.download.Kiwi-Capture
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Kiwi-Capture
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/KiwiSoft/Kiwi-Capture/Kiwi-Capture.dmg"
+  filename: "Kiwi-Capture.dmg"
+  teamid: "KIWISOFT00"
+
+  LOCAL_SCRIPTS_PATH: "%VENDOR_CACHE_ROOT%/KiwiSoft/Kiwi-Capture/scripts"
+  LOCAL_PAYLOAD_PATH: "%VENDOR_CACHE_ROOT%/KiwiSoft/Kiwi-Capture/payload"
+
+  # Match any .app whose bundle name starts with the app's name. Handles:
+  # "Kiwi Capture 2025.app", "Kiwi Capture 2026.app", "Kiwi Capture Pro.app", etc.
+  APP_FIND_PATTERN: "Kiwi Capture*.app"
+
+Process:
+  # Stage the DMG from vendor_cache using URLDownloader (universal input).
+  # URLDownloader saves to downloads/ subdirectory within RECIPE_CACHE_DIR.
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # Stage scripts alongside
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_SCRIPTS_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      overwrite: true
+
+  # Stage org-specific payload files (LicenseKey + directory tree)
+  # under the pkgroot so PkgCreator bundles them into the final pkg.
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_PAYLOAD_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%"
+      overwrite: true
+
+  # Copier mounts the DMG from the downloads/ subdirectory (where URLDownloader
+  # placed it) and expands the glob automatically. Copier handles mounting DMGs
+  # natively when source_path points inside one.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/%APP_FIND_PATTERN%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Kiwi Capture.app"
+      overwrite: true
+
+  # Verify KiwiSoft code signature
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Kiwi Capture.app"
+      requirement: >-
+        identifier "com.kiwisoft.capture" and anchor apple generic and
+        certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and
+        certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and
+        certificate leaf[subject.OU] = "KIWISOFT00"
+
+  # Read version from the .app
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Kiwi Capture.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: EndOfCheckPhase

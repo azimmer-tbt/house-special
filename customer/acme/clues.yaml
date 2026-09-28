@@ -1,0 +1,54 @@
+# customer/acme/clues.yaml — classification hints for bin/analyze-package.sh
+#
+# Read with: bin/analyze-package.sh <pkg> --customer acme
+# Schema: docs/FORMATS.md §2. Every pattern is a Python regex (re.search); a bad
+# one stops the script (exit 2).
+
+# Package identifiers that mean "a vendor built this" — strong vendor signal
+# (any component's, in a distribution package).
+vendor_identifiers:
+  - "^com\\.microsoft\\."
+  - "^com\\.google\\."
+  - "^org\\.mozilla\\."
+  - "^com\\.hp\\."
+  - "^com\\.moonlight-stream\\."
+  - "^com\\.raspberrypi\\."
+  - "^si\\.biolab\\."
+  - "^com\\.alienator88\\."
+  - "^io\\.corkscrews\\."
+  - "^com\\.orchardlabs\\."
+
+# Team IDs of vendors Acme deploys — the 10 characters in parentheses in the
+# signing authority. A signed package from one of these: extra strong vendor signal.
+# Exact strings, not regexes.
+vendor_team_ids:
+  - "UBF8T346G9"   # Microsoft
+  - "45U78722YL"   # Moonlight (Cameron Gutman)
+  - "8RDZTRXE62"   # Raspberry Pi Ltd
+  - "556DY3FJ29"   # Biolab / Orange
+  - "BK8443AXLU"   # Pearcleaner (Marius Lupascu)
+
+# Installer filenames that follow a vendor's own naming — medium vendor signal.
+# `vendor` is a label for people.
+vendor_filename_patterns:
+  - pattern: "^Microsoft_.*_Installer"
+    vendor: "Microsoft"
+  - pattern: "^HP[-_ ]?(Easy|Printer|Smart)"
+    vendor: "HP"
+
+custom_build_signals:
+  # Acme's in-house packages carry the org code in the filename (Acme_AppName.pkg).
+  # The flag turns on the filename check; an org code in the identifier is a
+  # medium custom signal either way (case-insensitive).
+  filename_contains_org_code: true
+  org_codes:
+    - "Acme"
+    - "acmefruit"
+  # Destinations typical of in-house repackaging: matched against the install
+  # location and every payload path as installed. Medium custom signal.
+  unusual_install_locations:
+    - "/Users/Shared"
+    - "/Library/Application Support/AcmeFruit"
+  # Legacy in-house identifiers were single tokens (e.g. "acmebanner20191121").
+  # A match is a medium custom signal; leave it out for no check.
+  non_reverse_domain_pattern: "^[a-z]+[a-z0-9]*$"

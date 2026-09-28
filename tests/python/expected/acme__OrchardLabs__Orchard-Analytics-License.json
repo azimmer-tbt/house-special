@@ -1,0 +1,138 @@
+{
+  "findings": [],
+  "pairs": {
+    "Orchard-Analytics-License": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 21,
+          "processor": "URLDownloader",
+          "recipe": "Orchard-Analytics-License.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library/Application Support/Orchard Labs",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": "0444",
+          "path": "Library/Application Support/Orchard Labs/license.lic",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Orchard-Analytics-License.download.recipe.yaml": "Pattern 6c \u2014 license slice, one file. URLDownloader + Unarchiver stage the license payload from vendor_cache.",
+        "Orchard-Analytics-License.pkg.recipe.yaml": "Pattern 6c \u2014 license slice, one file with an exact owner and mode. Installs after the app package; never touches it."
+      },
+      "extras": [
+        "Library/Application Support/Orchard Labs/license.lic"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Orchard-Analytics-License",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Orchard-Analytics-License.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Orchard-Analytics-License",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Orchard-Analytics-License",
+          "file": "Orchard-Analytics-License.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 16,
+          "processor": "PkgCreator",
+          "recipe": "Orchard-Analytics-License.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [
+        "Library/Application Support/Orchard Labs",
+        "Library/Application Support/Orchard Labs/license.lic"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 16,
+          "processor": "PkgCreator",
+          "recipe": "Orchard-Analytics-License.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_Orchard-Analytics-License"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 21,
+          "processor": "URLDownloader",
+          "recipe": "Orchard-Analytics-License.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/OrchardLabs/Orchard-Analytics-License/payload.zip",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "Orchard-Analytics-License.download.recipe.yaml"
+        },
+        "pinned": "2026.1",
+        "value": "input"
+      }
+    }
+  }
+}

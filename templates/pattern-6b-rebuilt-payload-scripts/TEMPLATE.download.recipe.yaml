@@ -1,0 +1,74 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6b — Rebuilt Package (Payload + Scripts)
+#
+# Defined in reference/recipe-standards.md §6.2.6. Pattern 6 is this kit's
+# addition to the common AutoPkg shapes — say "Pattern 6 (rebuilt package)" the
+# first time you use the term outside this repo.
+#
+# Use when an installed package exists but its source files do not — a legacy
+# in-house package with no build recipe, no pkgroot, and nobody left who has it.
+# You extract the built package into a payload tree and rebuild from that.
+#
+# Pattern 6b is the variant where the payload AND installer scripts are
+# distributed as separate archives (payload.zip + scripts.zip) that must be
+# downloaded and extracted independently.
+#
+# DO NOT use this on a vendor package you could ship as-is. Rebuilding discards
+# the original signature. If the input is signed by someone else, Pattern 4
+# Variant A (PkgCopier) is correct and this pattern is wrong.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6b rebuilt package — payload+scripts extracted from existing installer. URLDownloader + Unarchiver for payload and scripts archives.
+Description: Downloads and unpacks the REPLACE_APPNAME payload and scripts archives.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Version: add the same pinned version Input here as in the pkg recipe
+  # (for example version: "1.2.3"). Lint rule VER-001 looks for it in the
+  # download recipe. Pin it in Input, not in .overrides: AutoPkg never reads
+  # .overrides.
+  VENDOR_CACHE_ROOT: "" # e.g. /tmp/autopkg/vendor_cache or repo-relative path
+  PAYLOAD_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDOR/REPLACE_APPNAME/payload.zip"
+  SCRIPTS_URL: "file://%VENDOR_CACHE_ROOT%/REPLACE_VENDOR/REPLACE_APPNAME/scripts.zip"
+  filename: "REPLACE_APPNAME-payload.zip"
+  scripts_filename: "REPLACE_APPNAME-scripts.zip"
+
+  # A rebuilt package carries no signature — the original's was discarded when
+  # it was dismantled. Declare it explicitly.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  # 1. Download and extract the payload archive
+  - Processor: URLDownloader
+    Arguments:
+      url: "%PAYLOAD_URL%"
+      filename: "%filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  # 2. Download and extract the scripts archive
+  - Processor: URLDownloader
+    Arguments:
+      url: "%SCRIPTS_URL%"
+      filename: "%scripts_filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase
+
+# NO CodeSignatureVerifier here. There is nothing to verify: the artifact is
+# assembled locally from extracted archives. Declaring NO_CODE_SIGNATURE_REQUIRED
+# above with a reason is the correct handling — silently omitting the verifier
+# is not, because the next reader cannot tell an unsigned artifact from a
+# forgotten step.

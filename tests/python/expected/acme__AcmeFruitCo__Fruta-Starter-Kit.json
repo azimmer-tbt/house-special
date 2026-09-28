@@ -1,0 +1,153 @@
+{
+  "findings": [],
+  "pairs": {
+    "Fruta-Starter-Kit": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 18,
+          "processor": "URLDownloader",
+          "recipe": "Fruta-Starter-Kit.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library/Application Support/AcmeFruit",
+          "shared_folder": false,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": "0644",
+          "path": "Library/LaunchAgents/com.acmefruit.starter-kit.plist",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Fruta-Starter-Kit.download.recipe.yaml": "Pattern 2d \u2014 GitHub source ZIP, reassembled. Apple's Fruta SwiftUI sample, downloaded as GitHub's source archive and unpacked for the new-hire developer starter kit.",
+        "Fruta-Starter-Kit.pkg.recipe.yaml": "Pattern 2d \u2014 GitHub source ZIP, reassembled. PkgCreator ships the kit plus a delivery script; postinstall builds the tarball and puts it on every user's Desktop."
+      },
+      "extras": [
+        "Library/Application Support/AcmeFruit/StarterKit/Fruta",
+        "Library/Application Support/AcmeFruit/StarterKit/deliver-starter-kit.sh",
+        "Library/LaunchAgents/com.acmefruit.starter-kit.plist"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Fruta-Starter-Kit",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Fruta-Starter-Kit.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Fruta-Starter-Kit",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Fruta-Starter-Kit",
+          "file": "Fruta-Starter-Kit.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 40,
+          "processor": "PkgCreator",
+          "recipe": "Fruta-Starter-Kit.pkg.recipe.yaml",
+          "step": 2
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Library/Application Support/AcmeFruit",
+        "Library/Application Support/AcmeFruit/StarterKit/Fruta",
+        "Library/Application Support/AcmeFruit/StarterKit/deliver-starter-kit.sh",
+        "Library/LaunchAgents/com.acmefruit.starter-kit.plist"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 40,
+          "processor": "PkgCreator",
+          "recipe": "Fruta-Starter-Kit.pkg.recipe.yaml",
+          "step": 2
+        },
+        "value": "Acme_Fruta-Starter-Kit"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Library/Application Support",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "directory": "%RECIPE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 40,
+          "processor": "PkgCreator",
+          "recipe": "Fruta-Starter-Kit.pkg.recipe.yaml",
+          "step": 2
+        },
+        "scripts": [
+          "postinstall"
+        ],
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 18,
+          "processor": "URLDownloader",
+          "recipe": "Fruta-Starter-Kit.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "https://github.com/apple-sample-code/FrutaBuildingAFeatureRichAppWithSwiftUI/archive/refs/heads/main.zip",
+        "value": "github_archive"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "Fruta-Starter-Kit.download.recipe.yaml"
+        },
+        "pinned": "1.0.0",
+        "value": "input"
+      }
+    }
+  }
+}

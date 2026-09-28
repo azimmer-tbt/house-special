@@ -1,0 +1,11 @@
+=== inspect-dmg.sh ===
+  File:         /path/to/vendor-share/MoonlightGameStreaming/Moonlight/Moonlight-6.1.0.dmg
+  Size:         59806624 bytes (57 MB)
+  Mount:        /private/tmp/dmg.XXXXXX
+
+=== Applications found ===
+  Moonlight.app  com.moonlight-stream.Moonlight  6.1.0  x86_64,arm64
+
+=== DMG structure ===
+  Top level:    .VolumeIcon.icns,.background,Applications,Moonlight.app
+  Total items:  1298

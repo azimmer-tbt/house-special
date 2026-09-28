@@ -1,0 +1,101 @@
+{
+  "findings": [],
+  "pairs": {
+    "Audit-Control-Expiry": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 28,
+          "processor": "URLDownloader",
+          "recipe": "Audit-Control-Expiry.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [
+        {
+          "group": "wheel",
+          "mode": "0400",
+          "path": "private/etc/security/audit_control",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Audit-Control-Expiry.download.recipe.yaml": "Pattern 6c \u2014 Rebuilt package \u2014 payload extracted from an existing installer. Source files not available. Uses URLDownloader + Unarchiver for universal payload archive handling.",
+        "Audit-Control-Expiry.pkg.recipe.yaml": "Pattern 6c rebuilt package. PkgCreator restoring 0400 ownership on single file."
+      },
+      "extras": [
+        "private/etc/security/audit_control"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Audit-Control-Expiry",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Audit-Control-Expiry.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Audit-Control-Expiry",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Audit-Control-Expiry",
+          "file": "Audit-Control-Expiry.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 20,
+          "processor": "PkgCreator",
+          "recipe": "Audit-Control-Expiry.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [
+        "private/etc/security/audit_control"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 20,
+          "processor": "PkgCreator",
+          "recipe": "Audit-Control-Expiry.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_Audit-Control-Expiry"
+      },
+      "pkgroot_parents": [],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 28,
+          "processor": "URLDownloader",
+          "recipe": "Audit-Control-Expiry.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/AcmeFruitCo/Audit-Control-Expiry/payload.zip",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "Audit-Control-Expiry.pkg.recipe.yaml"
+        },
+        "pinned": "1",
+        "value": "input"
+      }
+    }
+  }
+}

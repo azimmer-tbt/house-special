@@ -1,0 +1,28 @@
+# This is a well-formed download recipe for testing the linter's parsing.
+# The linter must be able to extract all fields listed in 02-config-parsing.md §2.2
+Comment: Direct URL download recipe (stable redirect).
+Description: Downloads the latest version of ExampleApp.
+Identifier: com.acmefruit.autopkg.download.ExampleApp
+MinimumVersion: "2.3"
+
+Input:
+  NAME: ExampleApp
+  DOWNLOAD_URL: "https://vendor.com/download/ExampleApp-latest.dmg"
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%NAME%.dmg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%/ExampleApp.app"
+      requirement: "anchor apple generic and identifier com.example.app and certificate leaf[subject.OU] = XXXXXXXXXX"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%pathname%/ExampleApp.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString

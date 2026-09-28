@@ -1,0 +1,13 @@
+House Special (house-special)
+Copyright (c) 2026 Andrew Zimmer. Licensed under the MIT License (see LICENSE).
+
+Third-party material is not included in this repository:
+
+- reference/autopkg-wiki/ is where each user clones the AutoPkg project wiki
+  (https://github.com/autopkg/autopkg/wiki) for offline processor lookups. It is
+  gitignored and not distributed here; its content belongs to the AutoPkg
+  project and its contributors.
+
+Example recipes under customer/acme/ download third-party software at run time;
+none of that software is redistributed in this repository. Their licenses are
+listed in customer/acme/README.md.

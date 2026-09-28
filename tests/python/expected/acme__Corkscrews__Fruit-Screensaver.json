@@ -1,0 +1,122 @@
+{
+  "findings": [],
+  "pairs": {
+    "Fruit-Screensaver": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 20,
+          "processor": "URLDownloader",
+          "recipe": "Fruit-Screensaver.download.recipe.yaml",
+          "step": 1
+        },
+        "value": "tar"
+      },
+      "chown": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library/Screen Savers/Fruit.saver",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Fruit-Screensaver.download.recipe.yaml": "Pattern 2b \u2014 GitHub release, rebuilt. The release asset is a .tar.gz holding Fruit.saver; Unarchiver extracts it.",
+        "Fruit-Screensaver.pkg.recipe.yaml": "Pattern 2b \u2014 GitHub release, rebuilt. PkgCreator installs the screensaver for all users; it does NOT make it the default (that is the Fruit-Screensaver-Default slice)."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Fruit-Screensaver",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Fruit-Screensaver.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Fruit-Screensaver",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Fruit-Screensaver",
+          "file": "Fruit-Screensaver.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 22,
+          "processor": "PkgCreator",
+          "recipe": "Fruit-Screensaver.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Library/Screen Savers/Fruit.saver"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 22,
+          "processor": "PkgCreator",
+          "recipe": "Fruit-Screensaver.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "Acme_Fruit-Screensaver"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": true,
+        "evidence": {
+          "argument": "requirement",
+          "line": 37,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Fruit-Screensaver.download.recipe.yaml",
+          "step": 4
+        },
+        "pins_team_id": false,
+        "value": "identifier_only"
+      },
+      "source": {
+        "evidence": {
+          "argument": "github_repo",
+          "line": 14,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Fruit-Screensaver.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "github_release"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 14,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Fruit-Screensaver.download.recipe.yaml",
+          "step": 0
+        },
+        "processor": "GitHubReleasesInfoProvider",
+        "value": "processor"
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+Comment: Pattern 2a — GitHub release, signed vendor pkg copied as-is. GitHubReleasesInfoProvider + URLDownloader; the pkg's signature is verified by certificate chain.
+Description: Downloads the latest SwiftDialog installer package (shows configurable dialogs from scripts) from GitHub releases.
+Identifier: com.acmefruit.autopkg.download.SwiftDialog
+MinimumVersion: "2.3"
+
+Input:
+  NAME: SwiftDialog
+  GITHUB_REPO: swiftDialog/swiftDialog
+  ASSET_REGEX: "^dialog-[\\d.]+-\\d+\\.pkg$"
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: "%ASSET_REGEX%"
+      include_prereleases: false
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  # A flat .pkg is verified with pkgutil's certificate chain, copied verbatim from
+  # `pkgutil --check-signature` (methodology lessons 5 and 6).
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%pathname%"
+      expected_authority_names:
+        - "Developer ID Installer: Commonwealth Scientific and Industrial Research Organisation (PWA5E9TQ59)"
+        - Developer ID Certification Authority
+        - Apple Root CA

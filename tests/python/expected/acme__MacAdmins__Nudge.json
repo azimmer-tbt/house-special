@@ -1,0 +1,88 @@
+{
+  "findings": [],
+  "pairs": {
+    "Nudge": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 18,
+          "processor": "URLDownloader",
+          "recipe": "Nudge.download.recipe.yaml",
+          "step": 1
+        },
+        "value": "pkg"
+      },
+      "chown": [],
+      "claimed": {
+        "Nudge.download.recipe.yaml": "Pattern 2a \u2014 GitHub release, signed vendor pkg copied as-is. GitHubReleasesInfoProvider + URLDownloader; the pkg's signature is verified by certificate chain.",
+        "Nudge.pkg.recipe.yaml": "Pattern 2a \u2014 GitHub release, signed vendor pkg copied as-is. PkgCopier keeps the vendor's package and signature; no org prefix."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Nudge",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Nudge.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Nudge",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Nudge",
+          "file": "Nudge.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 13,
+          "processor": "PkgCopier",
+          "recipe": "Nudge.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCopier"
+      },
+      "payload_complete": true,
+      "payload_paths": [],
+      "pkgname": null,
+      "pkgroot_parents": [],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "chain_listed": true,
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "expected_authority_names",
+          "line": 26,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Nudge.download.recipe.yaml",
+          "step": 3
+        },
+        "value": "authority_names"
+      },
+      "source": {
+        "evidence": {
+          "argument": "github_repo",
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Nudge.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "github_release"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Nudge.download.recipe.yaml",
+          "step": 0
+        },
+        "processor": "GitHubReleasesInfoProvider",
+        "value": "processor"
+      }
+    }
+  }
+}

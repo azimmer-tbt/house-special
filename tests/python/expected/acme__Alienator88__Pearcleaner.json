@@ -1,0 +1,115 @@
+{
+  "findings": [],
+  "pairs": {
+    "Pearcleaner": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 18,
+          "processor": "URLDownloader",
+          "recipe": "Pearcleaner.download.recipe.yaml",
+          "step": 1
+        },
+        "value": "dmg"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "Pearcleaner.download.recipe.yaml": "Pattern 2b \u2014 GitHub release DMG. GitHubReleasesInfoProvider + URLDownloader; app verified inside the mounted DMG.",
+        "Pearcleaner.pkg.recipe.yaml": "Pattern 2b \u2014 GitHub release DMG. Copier stages the app; PkgCreator builds the Acme_ package."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Pearcleaner",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Pearcleaner.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Pearcleaner",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Pearcleaner",
+          "file": "Pearcleaner.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": true,
+      "output": {
+        "evidence": {
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Pearcleaner.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": true,
+      "payload_paths": [
+        "Applications/Pearcleaner.app"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 19,
+          "processor": "PkgCreator",
+          "recipe": "Pearcleaner.pkg.recipe.yaml",
+          "step": 1
+        },
+        "value": "Acme_Pearcleaner"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "requirement",
+          "line": 25,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Pearcleaner.download.recipe.yaml",
+          "step": 3
+        },
+        "pins_team_id": true,
+        "value": "requirement"
+      },
+      "source": {
+        "evidence": {
+          "argument": "github_repo",
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Pearcleaner.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "github_release"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 12,
+          "processor": "GitHubReleasesInfoProvider",
+          "recipe": "Pearcleaner.download.recipe.yaml",
+          "step": 0
+        },
+        "processor": "GitHubReleasesInfoProvider",
+        "value": "processor"
+      }
+    }
+  }
+}

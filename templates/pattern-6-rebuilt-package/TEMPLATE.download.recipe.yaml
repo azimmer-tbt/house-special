@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 6 — Rebuilt Package (reverse-engineered)
+#
+# Defined in reference/recipe-standards.md §6.2.6. Pattern 6 is this kit's
+# addition to the common AutoPkg shapes — say "Pattern 6 (rebuilt package)" the
+# first time you use the term outside this repo.
+#
+# Use when an installed package exists but its source files do not — a legacy
+# in-house package with no build recipe, no pkgroot, and nobody left who has it.
+# You extract the built package into a payload tree and rebuild from that.
+#
+# DO NOT use this on a vendor package you could ship as-is. Rebuilding discards
+# the original signature. If the input is signed by someone else, Pattern 4
+# Variant A (PkgCopier) is correct and this pattern is wrong.
+#
+# Generate the starting point rather than hand-writing it:
+#   sudo bin/pkg-reverse.sh <package.pkg> --dest <repo>/<vendor-cache>/<Vendor>
+#   bin/blueprint-to-recipe.sh --blueprint <...>/blueprint.conf --out <...>
+#
+# Use this template directly only when adapting an existing extraction by hand.
+#
+# WHY THIS IS NOT PATTERN 4
+#
+# Pattern 4 stages a file someone handed you and ships it. Pattern 6 dismantles
+# a built artifact and reconstructs it, which introduces four decisions Pattern 4
+# never faces: package identifier fidelity, install-location fidelity, installer
+# scripts, and file ownership. Each is covered below and in the pkg recipe.
+#
+# Replace every REPLACE_* token. bin/scan-placeholders.sh will list any you miss.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Rebuilt package — payload extracted from an existing installer, source unavailable.
+Description: Stages the REPLACE_APPNAME payload and installer scripts from the vendor cache.
+Identifier: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Version: add the same pinned version Input here as in the pkg recipe
+  # (for example version: "1.2.3"). Lint rule VER-001 looks for it in the
+  # download recipe. Pin it in Input, not in .overrides: AutoPkg never reads
+  # .overrides.
+
+  # A rebuilt package carries no signature — the original's was discarded when
+  # it was dismantled. This is not an omission to be silently tolerated; declare
+  # it, and say what the trust boundary actually is.
+  # Confirm the original's status first (never `codesign` on a .pkg):
+  #   pkgutil --check-signature <original>.pkg
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  # Path arithmetic: recipes/VendorName/AppName/ is THREE levels below the repo
+  # root. The segment after ../../../ depends on the target repo's layout —
+  # build/vendor_cache/ (corporate) or vendor_cache/ (flat local). Match the repo
+  # you are writing into; a wrong path fails at runtime, not at lint time.
+  LOCAL_DIR_PATH: "%RECIPE_DIR%/../../../REPLACE_VENDORCACHE/REPLACE_VENDORDIR/REPLACE_APPNAME/payload"
+
+  # Omit this and the Copier step below if the original package had no scripts.
+  LOCAL_SCRIPTS_PATH: "%RECIPE_DIR%/../../../REPLACE_VENDORCACHE/REPLACE_VENDORDIR/REPLACE_APPNAME/scripts"
+
+Process:
+  # overwrite: true is mandatory for directory copies — Copier fails with
+  # [Errno 17] File exists on any second run against a populated cache.
+  # See reference/methodology.md item #11.
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_DIR_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      overwrite: true
+
+  # The pkg recipe hands %RECIPE_CACHE_DIR%/scripts to PkgCreator, so the scripts
+  # must be staged into the cache here. Nothing else puts them there. Delete this
+  # step if the original had no scripts.
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_SCRIPTS_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/scripts"
+      overwrite: true
+
+  - Processor: EndOfCheckPhase
+
+# NO CodeSignatureVerifier here. There is nothing to verify: the artifact is
+# assembled locally from a payload tree. Declaring NO_CODE_SIGNATURE_REQUIRED
+# above with a reason is the correct handling — silently omitting the verifier
+# is not, because the next reader cannot tell an unsigned artifact from a
+# forgotten step.

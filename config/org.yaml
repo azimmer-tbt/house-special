@@ -1,0 +1,34 @@
+# Org naming — the one file a fork edits to make this kit its own.
+#
+# Read by lib/toolkit-common.sh (read_org_config). Flat `key: value` lines
+# only — the linter parses this in pure bash, so no nesting, lists or anchors.
+#
+# Override per run with --org <file> (where supported) or $AUTOPKG_TOOLKIT_ORG.
+#
+# The defaults describe Acme Fruit Co., the fictional org used throughout the
+# docs, templates and the customer/acme worked example.
+
+# Human-readable org name, used in generated recipe Descriptions and lint messages.
+org_name: "Acme Fruit Co."
+
+# Reverse-DNS namespace for recipe Identifiers. Recipes become
+#   <identifier_prefix>.download.<App>  and  <identifier_prefix>.pkg.<App>
+# Enforced by lint rules IDN-001 / IDN-002.
+identifier_prefix: "com.acmefruit.autopkg"
+
+# Prefix every built package name starts with, e.g. Acme_Firefox-128.0.pkg.
+# Enforced by lint rule PKG-002.
+pkgname_prefix: "Acme_"
+
+# Internal DNS domain used in examples and in-house package identifiers.
+# The .example TLD is reserved (RFC 2606) and can never resolve.
+internal_domain: "acmefruit.example"
+
+# vendor_cache/ folder name for in-house (org-built) packages.
+# Defaults to pkgname_prefix without its trailing underscore.
+vendor_dir: "AcmeFruitCo"
+
+# Oldest macOS release still in your fleet. An app whose LSMinimumSystemVersion is
+# newer than this won't run on every Mac, so the equivalence audit raises it
+# (Standards §6.10.2). Major or major.minor, e.g. "14" or "14.6". Optional.
+fleet_min_macos: "14"

@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 4b — pkg recipe (distribution vendor package)
+#
+# Uses Copier for bit-for-bit copy of the vendor's signed distribution pkg.
+# Use Copier when PkgCopier fails on the vendor's distribution-format package.
+# First rule out a path problem: PkgCopier's "list index out of range" also
+# means source_pkg matched nothing (reference/methodology.md lesson 14).
+#
+# No org prefix: the output is the vendor's signed artifact, not an
+# in-house build.
+#
+# DO NOT reference %pathname% in this recipe. URLDownloader sets %pathname%;
+# Copier does NOT. A Pattern 4b parent uses URLDownloader + Copier, so
+# %pathname% is the download stage's output (the DMG). Reference the literal
+# cache path instead — %RECIPE_CACHE_DIR% IS shared across the parent→child
+# boundary, so it reliably points at what the parent's URLDownloader wrote.
+# See reference/methodology.md items #3 and #4.
+# ─────────────────────────────────────────────────────────────────────────────
+Description: Pattern 4b distribution package. Copier bit-for-bit copy of vendor pkg.
+Identifier: com.acmefruit.autopkg.pkg.REPLACE_APPNAME
+ParentRecipe: com.acmefruit.autopkg.download.REPLACE_APPNAME
+MinimumVersion: "2.3"
+
+Input:
+  NAME: REPLACE_APPNAME
+  # Vendor's own package identifier. Read it from the real pkg rather than
+  # guessing:  pkgutil --expand <file>.pkg /tmp/x && grep -o 'identifier="[^"]*"' /tmp/x/Distribution
+  # If you cannot confirm it, invent one AND say so in this app's README.md.
+  PKG_ID: REPLACE_PKG_ID
+
+Process:
+  # Copier bit-for-bit copy of the vendor signed distribution pkg.
+  # No org prefix — this is the vendor's artifact, not an in-house build.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/download_%NAME%.pkg"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%.pkg"

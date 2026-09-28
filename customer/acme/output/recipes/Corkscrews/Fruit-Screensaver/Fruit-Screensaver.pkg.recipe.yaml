@@ -1,0 +1,36 @@
+Comment: Pattern 2b — GitHub release, rebuilt. PkgCreator installs the screensaver for all users; it does NOT make it the default (that is the Fruit-Screensaver-Default slice).
+Description: Packages the Fruit screensaver for all users with Acme Fruit Co. naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Fruit-Screensaver
+ParentRecipe: com.acmefruit.autopkg.download.Fruit-Screensaver
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruit-Screensaver
+  PKG_ID: com.acmefruit.pkg.Fruit-Screensaver
+
+Process:
+  # The all-users location: installing here skips the "this user or all users?"
+  # prompt a double-clicked .saver shows.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/unpack/Fruit.saver"
+      destination_path: "%RECIPE_CACHE_DIR%/pkgroot/Library/Screen Savers/Fruit.saver"
+      overwrite: true
+
+  # Stock macOS owner for the shared parent (docs/package-ownership.md), then
+  # our bundle. Owner only on the parent — a mode would hit every descendant.
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: "%PKG_ID%"
+        version: "%version%"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+        chown:
+          - path: Library
+            user: root
+            group: wheel
+          - path: Library/Screen Savers/Fruit.saver
+            user: root
+            group: wheel

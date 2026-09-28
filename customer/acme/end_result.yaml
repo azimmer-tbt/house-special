@@ -1,0 +1,253 @@
+# customer/acme/end_result.yaml — the target recipe catalogue for Acme Fruit Co.
+#
+# Read by bin/analyze-materials.sh --customer acme (matches vendor files to these
+# targets by app_name / vendor). Schema: docs/FORMATS.md §3.
+# kind: live = real recipe, runs end to end; example = recipe for a fictional app
+#       (passes lint, nothing to download); catalogue = listed, no recipe yet.
+
+recipes:
+- app_name: Moonlight
+  vendor: MoonlightGameStreaming
+  pattern: "2b"
+  source: "GitHub release DMG"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Canonical drag-to-Applications DMG."
+- app_name: Raspberry-Pi-Imager
+  vendor: RaspberryPi
+  pattern: "2b"
+  source: "GitHub release DMG"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Version from the release tag (bundle version has a leading v)."
+- app_name: Pearcleaner
+  vendor: Alienator88
+  pattern: "2b"
+  source: "GitHub release DMG"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Project paused at 5.4.3; stable test target."
+- app_name: Orange-Data-Mining
+  vendor: Biolab
+  pattern: "3c"
+  source: "Scraped download page"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Versioned DMG link found with URLTextSearcher."
+- app_name: Fruit-Screensaver
+  vendor: Corkscrews
+  pattern: "2b"
+  source: "GitHub release tar.gz"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Ad-hoc signed. Installs the screensaver only; the default is the Fruit-Screensaver-Default slice."
+- app_name: Fruit-Screensaver-Default
+  vendor: Corkscrews
+  pattern: "6b"
+  source: "Org-authored payload + scripts (committed with the recipe)"
+  kind: live
+  status: done
+  built_in_house: true
+  recipe_drafted: true
+  build_tested: true
+  notes: "Config slice: makes Fruit each user's screensaver, once. Install after Fruit-Screensaver."
+- app_name: Fruta-Starter-Kit
+  vendor: AcmeFruitCo
+  pattern: "2d"
+  source: "GitHub source ZIP + scripts"
+  kind: live
+  status: done
+  built_in_house: true
+  recipe_drafted: true
+  build_tested: true
+  notes: "New-hire developer starter kit; tarball on every Desktop."
+- app_name: Firefox
+  vendor: Mozilla
+  pattern: "3b"
+  source: "Stable redirect URL (DMG)"
+  kind: catalogue
+  status: planned
+  built_in_house: false
+  recipe_drafted: false
+  build_tested: false
+  notes: "Not yet drafted."
+- app_name: Google-Chrome
+  vendor: Google
+  pattern: "3b"
+  source: "Stable redirect URL (DMG)"
+  kind: catalogue
+  status: planned
+  built_in_house: false
+  recipe_drafted: false
+  build_tested: false
+  notes: "Not yet drafted."
+- app_name: Microsoft-Word
+  vendor: Microsoft
+  pattern: "5"
+  source: "Stable fwlink URL (vendor pkg)"
+  kind: catalogue
+  status: planned
+  built_in_house: false
+  recipe_drafted: false
+  build_tested: false
+  template_example: templates/pattern-5-vendor-pkg-url/example-Microsoft-Word
+  notes: "Use the template example."
+- app_name: HP-Printer-Drivers
+  vendor: HP
+  pattern: "4b"
+  source: "Vendor drop (distribution pkg)"
+  kind: catalogue
+  status: planned
+  built_in_house: false
+  recipe_drafted: false
+  build_tested: false
+  template_example: templates/pattern-4b-distribution-package
+  notes: "Download link is hard to find; staged by hand."
+- app_name: Orchard-Analytics
+  vendor: OrchardLabs
+  pattern: "4c"
+  source: "Vendor drop (DMG, app only)"
+  kind: example
+  status: drafted
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: false
+  notes: "Fictional vendor. License ships as the Orchard-Analytics-License slice. Plan: plans/orchard-analytics.md."
+- app_name: Orchard-Analytics-License
+  vendor: OrchardLabs
+  pattern: "6c"
+  source: "Vendor drop (license file from IT)"
+  kind: example
+  status: drafted
+  built_in_house: true
+  recipe_drafted: true
+  build_tested: false
+  notes: "Slice for Orchard-Analytics; install after the app package."
+- app_name: AcmeSupport
+  vendor: AcmeFruitCo
+  pattern: "6b"
+  source: "Rebuilt (payload + scripts)"
+  kind: example
+  status: drafted
+  built_in_house: true
+  recipe_drafted: true
+  build_tested: false
+  notes: "Fictional in-house helper app + LaunchAgent."
+- app_name: Acme-Wallpaper
+  vendor: AcmeFruitCo
+  pattern: "6c"
+  source: "Rebuilt (single file)"
+  kind: catalogue
+  status: planned
+  built_in_house: true
+  recipe_drafted: false
+  build_tested: false
+  template_example: templates/pattern-6c-rebuilt-single-file/example-Audit-Control-Expiry
+  notes: "Fictional; one config file with a fixed mode."
+- app_name: Acme-UninstallAgent
+  vendor: AcmeFruitCo
+  pattern: "6d"
+  source: "Rebuilt (payloadless)"
+  kind: catalogue
+  status: planned
+  built_in_house: true
+  recipe_drafted: false
+  build_tested: false
+  template_example: templates/pattern-6d-rebuilt-payloadless/example-UninstallAgent
+  notes: "Fictional; script-only package."
+- app_name: Pomelo-Studio
+  vendor: PomeloSoftware
+  pattern: "7"
+  source: "Faux vendor DMG"
+  kind: catalogue
+  status: planned
+  built_in_house: false
+  recipe_drafted: false
+  build_tested: false
+  template_example: templates/pattern-7-faux-vendor-dmg/example-Pomelo-Studio
+  notes: "Fictional licensed app wrapped in-house."
+- app_name: Default-Browser
+  vendor: MacAdmins
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Sets the default browser. See docs/community-tools.md."
+- app_name: Outset
+  vendor: MacAdmins
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Runs scripts at boot/login. See docs/community-tools.md."
+- app_name: Nudge
+  vendor: MacAdmins
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "macOS update reminders (Essentials). See docs/community-tools.md."
+- app_name: IconGrabber
+  vendor: MacAdmins
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Extracts app icons. See docs/community-tools.md."
+- app_name: SwiftDialog
+  vendor: SwiftDialog
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Dialogs from scripts. See docs/community-tools.md."
+- app_name: Desktoppr
+  vendor: ScriptingOSX
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Sets the desktop picture. See docs/community-tools.md."
+- app_name: Dockutil
+  vendor: KCrawford
+  pattern: "2a"
+  source: "GitHub release, signed vendor pkg"
+  kind: live
+  status: done
+  built_in_house: false
+  recipe_drafted: true
+  build_tested: true
+  notes: "Edits the Dock. See docs/community-tools.md."

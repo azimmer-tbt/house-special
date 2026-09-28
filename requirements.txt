@@ -1,0 +1,3 @@
+# Only needed if you point AUTOPKG_TOOLKIT_PYTHON at your own interpreter.
+# By default the toolkit runs AutoPkg's bundled Python, which already has these.
+pyyaml>=6.0

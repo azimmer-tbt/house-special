@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Audit-Control-Expiry — Pattern 6c example
+#
+# Modelled on a real in-house package; identifiers and paths are Acme's.
+#
+# The upstream file Acme_Audit_Control_Expiry_20190422.pkg is an unsigned
+# distribution package built by Jamf Composer. The recipe downloads the
+# payload archive from vendor_cache and unpacks it.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6c — Rebuilt package — payload extracted from an existing installer. Source files not available.
+  Uses URLDownloader + Unarchiver for universal payload archive handling.
+Description: Downloads and unpacks the Audit-Control-Expiry payload archive.
+Identifier: com.acmefruit.autopkg.download.Audit-Control-Expiry
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Audit-Control-Expiry
+  # Pinned: nothing in the source reports a version. Bump it with each new drop.
+  version: "1"
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/AcmeFruitCo/Audit-Control-Expiry/payload.zip"
+  filename: "Audit-Control-Expiry-payload.zip"
+
+  # An org-authored config file, not a vendor binary: nothing is signed to verify.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      purge_destination: true
+
+  - Processor: EndOfCheckPhase

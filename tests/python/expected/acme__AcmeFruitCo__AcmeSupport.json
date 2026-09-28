@@ -1,0 +1,139 @@
+{
+  "findings": [],
+  "pairs": {
+    "AcmeSupport": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 22,
+          "processor": "URLDownloader",
+          "recipe": "AcmeSupport.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "zip"
+      },
+      "chown": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": "0644",
+          "path": "Library/LaunchAgents/com.acmefruit.support.plist",
+          "shared_folder": false,
+          "user": "root"
+        }
+      ],
+      "claimed": {
+        "AcmeSupport.download.recipe.yaml": "Pattern 6b \u2014 rebuilt package, payload + scripts. Payload and scripts were extracted from the legacy in-house package with bin/pkg-reverse.sh.",
+        "AcmeSupport.pkg.recipe.yaml": "Pattern 6b \u2014 rebuilt package, payload + scripts. PkgCreator rebuilds the helper app and its LaunchAgent; the postinstall loads the agent for the logged-in user."
+      },
+      "extras": [
+        "Library/LaunchAgents/com.acmefruit.support.plist"
+      ],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.AcmeSupport",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "AcmeSupport.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.AcmeSupport",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.AcmeSupport",
+          "file": "AcmeSupport.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [
+        "Library/LaunchAgents/com.acmefruit.support.plist"
+      ],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_AcmeSupport"
+      },
+      "pkgroot_parents": [
+        {
+          "group": "admin",
+          "mode": null,
+          "path": "Applications",
+          "shared_folder": true,
+          "user": "root"
+        },
+        {
+          "group": "wheel",
+          "mode": null,
+          "path": "Library",
+          "shared_folder": true,
+          "user": "root"
+        }
+      ],
+      "scripts": {
+        "directory": "%RECIPE_CACHE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 15,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": null,
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 22,
+          "processor": "URLDownloader",
+          "recipe": "AcmeSupport.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "file:///tmp/autopkg/vendor_cache/AcmeFruitCo/AcmeSupport/payload.zip",
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "AcmeSupport.download.recipe.yaml"
+        },
+        "pinned": "3.2.0",
+        "value": "input"
+      }
+    }
+  }
+}

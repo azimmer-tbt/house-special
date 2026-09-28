@@ -1,0 +1,29 @@
+Comment: Pattern 2d — GitHub source ZIP, reassembled. Apple's Fruta SwiftUI sample, downloaded as GitHub's source archive and unpacked for the new-hire developer starter kit.
+Description: Downloads Apple's Fruta SwiftUI sample project (source archive) for the Acme new-hire developer starter kit.
+Identifier: com.acmefruit.autopkg.download.Fruta-Starter-Kit
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruta-Starter-Kit
+  # The sample has no releases, so the source archive of the default branch is
+  # the artifact. The repository is Apple's archived sample and rarely changes.
+  DOWNLOAD_URL: "https://github.com/apple-sample-code/FrutaBuildingAFeatureRichAppWithSwiftUI/archive/refs/heads/main.zip"
+  # No release tags and no version inside the source tree, so the kit version is
+  # pinned. Bump it when the kit's contents change.
+  version: "1.0.0"
+  # Source code only — nothing in the archive is signed (see README.md).
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%NAME%.zip"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      purge_destination: true

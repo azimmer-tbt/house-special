@@ -1,0 +1,25 @@
+# Configuration SLICE for ../Fruit-Screensaver: makes Fruit each user's screensaver.
+# Installing the screensaver (a tool) and making it the default (a config choice)
+# are separate packages, so an org can offer Fruit without imposing it.
+# Nothing is downloaded: the payload and scripts are small, org-authored files
+# committed next to this recipe (payload/, scripts/).
+Comment: Pattern 6b — config slice, payload + scripts. Copier stages the org-authored payload committed with the recipe.
+Description: Stages the Acme payload that makes the Fruit screensaver each user's default.
+Identifier: com.acmefruit.autopkg.download.Fruit-Screensaver-Default
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Fruit-Screensaver-Default
+  # Our own files, versioned with this repo: bump when payload/ or scripts/ change.
+  version: "1.0.0"
+  # Org-authored scripts and a plist: nothing signed to verify.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+Process:
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_DIR%/payload"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+      overwrite: true
+
+  - Processor: EndOfCheckPhase

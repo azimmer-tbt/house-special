@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Audit-Control-Expiry — Pattern 6c example (pkg recipe)
+#
+# Modelled on a real in-house package; identifiers and paths are Acme's.
+#
+# Rebuilds the single audit_control file with mode 0400, root:wheel.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 6c rebuilt package. PkgCreator restoring 0400 ownership on single file.
+Description: Rebuilds Audit-Control-Expiry with Acme naming convention.
+Identifier: com.acmefruit.autopkg.pkg.Audit-Control-Expiry
+ParentRecipe: com.acmefruit.autopkg.download.Audit-Control-Expiry
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Audit-Control-Expiry
+  PKG_ID: com.acmefruit.auditcontrol
+  version: "1"
+
+Process:
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgroot: "%RECIPE_CACHE_DIR%/payload"
+        pkgname: "Acme_%NAME%"
+        pkgdir: "%RECIPE_CACHE_DIR%"
+        id: "%PKG_ID%"
+        version: "%version%"
+        options: purge_dest
+        # Ownership from original BOM:
+        # drwxr-xr-x  root/admin  .
+        # drwxr-xr-x  root/wheel  ./private
+        # drwxr-xr-x  root/wheel  ./private/etc
+        # drwxr-xr-x  root/wheel  ./private/etc/security
+        # -r--------  root/wheel  ./private/etc/security/audit_control
+        #
+        # NOTE: audit_control needs mode 0400. PkgCreator's ditto run as sudo
+        # preserves on-disk ownership; but since the extracted payload files
+        # are owned by the running user (not root), we need a chown block to
+        # restore the correct ownership and mode from the BOM.
+        chown:
+          - path: private/etc/security/audit_control
+            user: root
+            group: wheel
+            mode: "0400"

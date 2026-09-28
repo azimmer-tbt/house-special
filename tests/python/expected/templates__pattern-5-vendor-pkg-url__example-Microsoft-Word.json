@@ -1,0 +1,89 @@
+{
+  "findings": [],
+  "pairs": {
+    "Microsoft-Word": {
+      "artifact": {
+        "evidence": {
+          "argument": "filename",
+          "line": 11,
+          "processor": "URLDownloader",
+          "recipe": "Microsoft-Word.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "pkg"
+      },
+      "chown": [],
+      "claimed": {
+        "Microsoft-Word.download.recipe.yaml": "Pattern 5 \u2014 Vendor PKG download recipe (stable fwlink redirect URL).",
+        "Microsoft-Word.pkg.recipe.yaml": "Pattern 5 \u2014 vendor pkg via stable URL (pkg recipe)."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.Microsoft-Word",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "Microsoft-Word.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.Microsoft-Word",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.Microsoft-Word",
+          "file": "Microsoft-Word.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 28,
+          "processor": "PkgCopier",
+          "recipe": "Microsoft-Word.pkg.recipe.yaml",
+          "step": 3
+        },
+        "value": "PkgCopier"
+      },
+      "payload_complete": true,
+      "payload_paths": [],
+      "pkgname": null,
+      "pkgroot_parents": [],
+      "scripts": {
+        "value": "none"
+      },
+      "signature": {
+        "chain_listed": true,
+        "declared_no_team": false,
+        "evidence": {
+          "argument": "expected_authority_names",
+          "line": 18,
+          "processor": "CodeSignatureVerifier",
+          "recipe": "Microsoft-Word.download.recipe.yaml",
+          "step": 2
+        },
+        "value": "authority_names"
+      },
+      "source": {
+        "evidence": {
+          "argument": "url",
+          "line": 11,
+          "processor": "URLDownloader",
+          "recipe": "Microsoft-Word.download.recipe.yaml",
+          "step": 0
+        },
+        "url": "https://go.microsoft.com/fwlink/?linkid=525134",
+        "value": "url_stable"
+      },
+      "version_source": {
+        "evidence": {
+          "line": 23,
+          "processor": "Versioner",
+          "recipe": "Microsoft-Word.pkg.recipe.yaml",
+          "step": 2
+        },
+        "processor": "Versioner",
+        "value": "processor"
+      }
+    }
+  }
+}

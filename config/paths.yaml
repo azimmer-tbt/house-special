@@ -1,0 +1,45 @@
+# config/paths.yaml — Toolkit Path Configuration
+#
+# Records the external file system locations you work with. INFORMATIONAL:
+# no script reads this file — frontends take --repo / $AUTOPKG_TOOLKIT_REPO —
+# but people and agent skills (.devagent/skills/) read it to find things.
+#
+# The toolkit's own location is auto-detected at runtime (TOOLKIT_ROOT).
+# This file defines the EXTERNAL paths — the recipe repos, source materials,
+# and cache directories the toolkit operates on.
+#
+# The Override: notes name the flag/env var the relevant scripts actually use.
+#
+# EDIT THIS FILE for your machine layout. The template values are placeholders.
+
+recipe_repo:
+  # Root directory of the AutoPkg recipe repo being worked on.
+  # Override: --repo flag or $AUTOPKG_TOOLKIT_REPO
+  root: /path/to/autopkg-iac
+
+  # Relative subdirectories within the repo root
+  recipes: recipes/
+  vendor_cache: build/vendor_cache/
+
+sources:
+  # Where original/source packages live before processing.
+  # Override: $AUTOPKG_SOURCE_PKGS
+  rough_packages: /path/to/source-packages
+
+  # Where upstream/server packages are stored for comparison.
+  upstream_packages: /path/to/upstream-packages
+
+auto_pkg:
+  # AutoPkg cache directory (standard location, rarely changes)
+  cache: ~/Library/AutoPkg/Cache
+
+customer:
+  # Superseded by `default:` in config/customers.yaml, which the linter and
+  # preflight do read (specs/toolkit/02-customers.md). Kept as a note for people
+  # and agents; no script reads it. Keep it in step with the registry's default.
+  current: "acme"
+
+tools:
+  # Optional: override paths for external tools
+  # autopkg: /usr/local/bin/autopkg
+  # python3: /usr/local/bin/python3

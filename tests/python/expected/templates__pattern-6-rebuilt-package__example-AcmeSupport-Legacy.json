@@ -1,0 +1,97 @@
+{
+  "findings": [],
+  "pairs": {
+    "AcmeSupport-Legacy": {
+      "artifact": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 29,
+          "processor": "Copier",
+          "recipe": "AcmeSupport-Legacy.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "files"
+      },
+      "chown": [],
+      "claimed": {
+        "AcmeSupport-Legacy.download.recipe.yaml": "Pattern 6b \u2014 payload and install scripts reverse-engineered from an existing package.",
+        "AcmeSupport-Legacy.pkg.recipe.yaml": "Pattern 6b \u2014 rebuilt package, payload plus the original install scripts (pkg recipe)."
+      },
+      "extras": [],
+      "identity": [
+        {
+          "Identifier": "com.acmefruit.autopkg.download.AcmeSupport-Legacy",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": null,
+          "file": "AcmeSupport-Legacy.download.recipe.yaml",
+          "format": "yaml"
+        },
+        {
+          "Identifier": "com.acmefruit.autopkg.pkg.AcmeSupport-Legacy",
+          "MinimumVersion": "2.3",
+          "ParentRecipe": "com.acmefruit.autopkg.download.AcmeSupport-Legacy",
+          "file": "AcmeSupport-Legacy.pkg.recipe.yaml",
+          "format": "yaml"
+        }
+      ],
+      "installs_app": false,
+      "output": {
+        "evidence": {
+          "line": 23,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport-Legacy.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "PkgCreator"
+      },
+      "payload_complete": false,
+      "payload_paths": [],
+      "pkgname": {
+        "evidence": {
+          "argument": "pkg_request.pkgname",
+          "line": 23,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport-Legacy.pkg.recipe.yaml",
+          "step": 0
+        },
+        "value": "Acme_AcmeSupport-Legacy"
+      },
+      "pkgroot_parents": [],
+      "scripts": {
+        "directory": "%RECIPE_CACHE_DIR%/scripts",
+        "evidence": {
+          "argument": "pkg_request.scripts",
+          "line": 23,
+          "processor": "PkgCreator",
+          "recipe": "AcmeSupport-Legacy.pkg.recipe.yaml",
+          "step": 0
+        },
+        "scripts": null,
+        "value": "present"
+      },
+      "signature": {
+        "declared_no_team": false,
+        "evidence": null,
+        "value": "declared_unsigned"
+      },
+      "source": {
+        "evidence": {
+          "argument": "source_path",
+          "line": 29,
+          "processor": "Copier",
+          "recipe": "AcmeSupport-Legacy.download.recipe.yaml",
+          "step": 0
+        },
+        "value": "vendor_cache"
+      },
+      "version_source": {
+        "evidence": {
+          "input": "version",
+          "recipe": "AcmeSupport-Legacy.pkg.recipe.yaml"
+        },
+        "pinned": "3.4.1",
+        "value": "input"
+      }
+    }
+  }
+}

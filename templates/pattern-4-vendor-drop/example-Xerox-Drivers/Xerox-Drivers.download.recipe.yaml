@@ -1,0 +1,28 @@
+Comment: Pattern 4a — Vendor-drop recipe — no automatic download; version pinned in Input.
+Description: Imports a locally staged copy of Xerox-Drivers.
+Identifier: com.acmefruit.autopkg.download.Xerox-Drivers
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Xerox-Drivers
+  # Pinned: nothing in the source reports a version. Bump it with each new drop.
+  version: "5.16.0"
+  teamid: "G59Y3XFNFR"
+  authority_name: "Xerox Corporation"
+  LOCAL_FILE_PATH: "%RECIPE_DIR%/../../../build/vendor_cache/XeroxCorporation/Xerox-Drivers/Xerox-Drivers.pkg"
+
+Process:
+  - Processor: Copier
+    Arguments:
+      source_path: "%LOCAL_FILE_PATH%"
+      destination_path: "%RECIPE_CACHE_DIR%/Xerox-Drivers.pkg"
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%RECIPE_CACHE_DIR%/Xerox-Drivers.pkg"
+      expected_authority_names:
+        - "Developer ID Installer: %authority_name% (%teamid%)"
+        - Developer ID Certification Authority
+        - Apple Root CA

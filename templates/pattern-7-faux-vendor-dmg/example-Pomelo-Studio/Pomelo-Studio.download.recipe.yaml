@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern 7 — Faux Vendor DMG (in-house constructed DMG wrapping a vendor app)
+#
+# Use when the actual installer is a non-standard format (custom .app installer,
+# third-party installer tool, etc.) that has been captured via Jamf Composer
+# snapshot and wrapped into a DMG for recipe ingestion. The "faux vendor DMG"
+# contains the .app payload extracted from that Composer snapshot.
+#
+# The recipe chain:
+#   URLDownloader → Copier (mount) → Versioner
+#
+# (NO CodeSignatureVerifier — the DMG is in-house constructed and unsigned.)
+#
+# DECISION POINTS
+#   1. VENDOR_CACHE_ROOT — confirm the path depth. The default assumes the
+#      corporate layout (build/vendor_cache/). If using init-recipe-repo.sh
+#      with --vendor-cache vendor_cache, adjust accordingly.
+#   2. DMG mounting — Copier mounts the DMG natively and extracts the .app.
+#      Use `hdiutil attach -nobrowse <DMG> && ls -R /Volumes/<volume>/`
+#      to verify the exact path structure before setting APP_FIND_PATTERN.
+#   3. NO_CODE_SIGNATURE_REQUIRED — this is the KEY difference from Pattern 4c.
+#      Do NOT silently omit CodeSignatureVerifier; declare it explicitly with
+#      NO_CODE_SIGNATURE_REQUIRED: true and a comment explaining WHY.
+#   4. APP_FIND_PATTERN — the path glob that matches the .app inside the DMG.
+#      Typically "Applications/AppName*/AppName*.app" since
+#      the DMG mirrors the Composer snapshot's payload structure.
+#   5. destination_path for Copier — hard-code the exact .app name (may include
+#      version suffix) since APP_FIND_PATTERN is a glob. Verify the actual name
+#      by mounting the DMG and checking the .app bundle name.
+# ─────────────────────────────────────────────────────────────────────────────
+Comment: Pattern 7 — Faux vendor DMG — app extracted from in-house snapshot.
+  URLDownloader stages DMG from vendor_cache, Copier extracts the .app.
+Description: Stages the Pomelo Studio faux vendor DMG from vendor_cache, extracts app.
+Identifier: com.acmefruit.autopkg.download.Pomelo-Studio
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Pomelo-Studio
+  VENDOR_CACHE_ROOT: "/tmp/autopkg/vendor_cache"
+  DOWNLOAD_URL: "file://%VENDOR_CACHE_ROOT%/PomeloSoftware/Pomelo-Studio/Pomelo-Studio.dmg"
+  filename: "Pomelo-Studio.dmg"
+
+  # No CodeSignatureVerifier: the faux vendor DMG is an in-house constructed
+  # artifact. Trust boundary is Jamf MDM.
+  NO_CODE_SIGNATURE_REQUIRED: true
+
+  APP_FIND_PATTERN: "Applications/Pomelo Studio*/Pomelo Studio*.app"
+
+Process:
+  # Stage the faux DMG from vendor_cache using URLDownloader (universal input).
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%"
+      filename: "%filename%"
+
+  # Copier mounts the DMG natively and extracts the .app.
+  - Processor: Copier
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/%APP_FIND_PATTERN%"
+      destination_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Pomelo Studio 4.app"
+      overwrite: true
+
+  # Read version from the .app
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/%NAME%/Applications/Pomelo Studio 4.app/Contents/Info.plist"
+      plist_version_key: CFBundleShortVersionString
+
+  - Processor: EndOfCheckPhase
